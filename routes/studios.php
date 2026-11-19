@@ -5,3 +5,4 @@ use App\Http\Controllers\StudioController;
 use App\Http\Controllers\StudioimageController;
 
 Route::resource('studios', StudioController::class);
+Route::resource('studioimages', StudioimageController::class);
