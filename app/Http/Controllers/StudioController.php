@@ -12,26 +12,79 @@ use Illuminate\Support\Str;
 class StudioController extends Controller
 {
     
-    public function index()
+     public function index(Request $request)
     {
+       
         if (Auth::check() && Auth::user()->role === 'admin') {
-            $studios = Studio::with(['category', 'type', 'provider'])->latest()->get();
+            $query = Studio::with(['type', 'images', 'reviews', 'provider']);
         } elseif (Auth::check() && Auth::user()->role === 'provider') {
-            $studios = Studio::with(['category', 'type'])
-                ->where('provider_id', Auth::id())
-                ->latest()
-                ->get();
+            $query = Studio::with(['type', 'images', 'reviews'])
+                ->where('provider_id', Auth::id());
         } else {
-            $studios = Studio::with(['category', 'type'])
+            $query = Studio::with(['type', 'images', 'reviews'])
                 ->where('status', 'approved')
-                ->where('is_active', true)
-                ->latest()
-                ->get();
+                ->where('is_active', true);
         }
 
-        return view('studios.index', compact('studios'));
-    }
+        
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('city', 'like', '%' . $search . '%');
+            });
+        }
 
+        
+        if ($request->filled('type')) {
+            $query->where('studio_type_id', $request->type);
+        }
+
+        
+        if ($request->filled('city')) {
+            $query->where('city', $request->city);
+        }
+
+        
+        if ($request->filled('capacity')) {
+            $query->where('capacity', '>=', $request->capacity);
+        }
+
+        
+        if ($request->sort === 'price_asc') {
+            $query->orderBy('hourly_price', 'asc');
+        } elseif ($request->sort === 'price_desc') {
+            $query->orderBy('hourly_price', 'desc');
+        } else {
+            $query->latest();
+        }
+
+        
+        $studios = $query->paginate(9)->withQueryString();
+
+        
+        foreach ($studios as $studio) {
+            $studio->rating = round($studio->reviews->avg('rating'), 1);
+            $studio->reviews_total = $studio->reviews->count();
+
+            $cover = $studio->images->where('is_cover', true)->first();
+            if (!$cover) {
+                $cover = $studio->images->first();
+            }
+
+            if ($cover) {
+                $studio->cover_url = asset('storage/' . $cover->image_path);
+            } else {
+                $studio->cover_url = asset('images/placeholder.svg');
+            }
+        }
+
+        
+        $studioTypes = StudioType::orderBy('sort_order')->get();
+        $cities = ['Amman', 'Irbid', 'Zarqa', 'Aqaba', 'Salt', 'Madaba', 'Jerash', 'Karak', 'Mafraq', 'Ajloun'];
+
+        return view('studios.index', compact('studios', 'studioTypes', 'cities'));
+    }
     
     public function create()
     {
@@ -78,7 +131,8 @@ class StudioController extends Controller
    
     public function show(string $id)
     {
-        $studio = Studio::with(['category', 'type', 'provider', 'images', 'services', 'packages'])->findOrFail($id);
+        $studio = Studio::with(['category', 'type', 'provider.providerProfile', 'images', 'services', 'packages', 'reviews.booking.customer'])
+            ->findOrFail($id);
 
         $isAdmin = Auth::check() && Auth::user()->role === 'admin';
         $isOwner = Auth::check() && Auth::id() === $studio->provider_id;
@@ -89,7 +143,12 @@ class StudioController extends Controller
             }
         }
 
-        return view('studios.show', compact('studio'));
+        
+        $reviews = $studio->reviews->sortByDesc('created_at');
+        $rating = round($reviews->avg('rating'), 1);
+        $reviewsTotal = $reviews->count();
+
+        return view('studios.show', compact('studio', 'reviews', 'rating', 'reviewsTotal'));
     }
 
    
