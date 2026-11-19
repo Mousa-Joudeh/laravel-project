@@ -69,6 +69,13 @@
                             </div>
                         </div>
                     </form>
+                    <div class="row mt-3">
+                        <div class="col-md-6 offset-md-4">
+                            <a href="{{ route('auth.google.redirect') }}" class="btn btn-outline-dark">
+                                Continue with Google
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
