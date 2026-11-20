@@ -19,7 +19,7 @@
                 <ul>
                     <li><a href="{{ route('studios.index') }}">All spaces</a></li>
                     <li><a href="{{ route('studiotypes.index') }}">Studio types</a></li>
-                    <li><a href="{{ route('bookings.index') }}">My bookings</a></li>
+                    <li><a href="{{ route('my-bookings.index') }}">My bookings</a></li>
                 </ul>
             </div>
 
