@@ -100,9 +100,39 @@ class ProviderProfileController extends Controller
             ->where('packages.is_active', true)
             ->where('studios.status', 'approved')
             ->where('studios.is_active', true)
-            ->with(['images', 'studio'])
+            ->with([
+                'images' => fn ($query) => $query->orderBy('sort_order'),
+                'studio.images' => fn ($query) => $query
+                    ->orderByDesc('is_cover')
+                    ->orderBy('sort_order'),
+            ])
             ->orderBy('packages.name')
             ->get();
+
+        if ($packages->isNotEmpty()) {
+            $packageRatings = \Illuminate\Support\Facades\DB::table('booking_items as bi')
+                ->join('bookings as b', 'b.id', '=', 'bi.booking_id')
+                ->join('reviews as r', 'r.booking_id', '=', 'b.id')
+                ->whereIn('bi.package_id', $packages->modelKeys())
+                ->whereNull('bi.deleted_at')
+                ->whereNull('b.deleted_at')
+                ->whereNull('r.deleted_at')
+                ->selectRaw('bi.package_id, AVG(r.rating) as average, COUNT(DISTINCT r.booking_id) as total')
+                ->groupBy('bi.package_id')
+                ->get()
+                ->keyBy('package_id');
+
+            foreach ($packages as $package) {
+                $stats = $packageRatings->get($package->id);
+
+                $package->cover_url = $package->images->first()?->url()
+                    ?? $package->studio?->images->first()?->url()
+                    ?? asset('images/placeholder.svg');
+
+                $package->rating = round((float) ($stats->average ?? 0), 1);
+                $package->reviews_total = (int) ($stats->total ?? 0);
+            }
+        }
 
         return view('studio-companies.show', compact('profile', 'spaces', 'services', 'packages'));
     }
