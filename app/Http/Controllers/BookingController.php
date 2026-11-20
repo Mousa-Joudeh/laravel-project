@@ -107,7 +107,7 @@ class BookingController extends Controller
             : $validated['customer_id'];
 
         Booking::create([
-            'reference' => Str::uuid(),
+            'reference' => 'SPC-' . strtoupper(Str::random(8)),
             'customer_id' => $customerId,
             'studio_id' => $studio->id,
             'mode' => $validated['mode'],
