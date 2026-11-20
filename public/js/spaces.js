@@ -402,23 +402,42 @@
 
             btn.classList.add('loading');
             btn.disabled = true;
-            try {
-                const res = await fetch(btn.dataset.url, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), Accept: 'application/json' }, body });
-                const data = await res.json();
-                target.value = '';
-                const text = data.text || '';
-                let k = 0;
-                const type = () => {
-                    target.value = text.slice(0, k += 3);
-                    if (k < text.length) requestAnimationFrame(type);
-                };
-                type();
-            } catch (err) {
-                alert('The AI writer is not available right now.');
-            } finally {
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }
+           try {
+    const res = await fetch(btn.dataset.url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrf(),
+            Accept: 'application/json',
+        },
+        body,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        throw new Error(
+            data.message || 'Could not generate the description. Please try again.'
+        );
+    }
+
+    if (typeof data.text !== 'string' || !data.text.trim()) {
+        throw new Error('AI returned an empty description. Please try again.');
+    }
+
+    // Replace the description only after a successful response.
+    target.value = data.text.trim();
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+} catch (err) {
+    // Keep the existing description when the request fails.
+    alert(
+        err instanceof Error
+            ? err.message
+            : 'The AI writer is not available right now.'
+    );
+} finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+}
         });
     });
 
