@@ -70,4 +70,36 @@ class Service extends Model
     {
         return $this->morphMany(Favorite::class, 'favoritable');
     }
+
+    public const SPECIALTIES = [
+        'photographer'   => 'Photographer',
+        'videographer'   => 'Videographer',
+        'sound_engineer' => 'Sound engineer',
+        'editor'         => 'Editor',
+        'lighting'       => 'Lighting technician',
+        'makeup_artist'  => 'Makeup artist',
+        'stylist'        => 'Stylist',
+        'assistant'      => 'Assistant',
+        'other'          => 'Other',
+    ];
+
+    public function specialtyLabel(): string
+    {
+        return self::SPECIALTIES[$this->specialty] ?? ucfirst(str_replace('_', ' ', (string) $this->specialty));
+    }
+
+    public function deliveryLabel(): string
+    {
+        return ['at_studio' => 'At the studio', 'at_client' => 'At the client', 'online' => 'Online'][$this->delivery_mode] ?? '';
+    }
+
+    public function priceSuffix(): string
+    {
+        return $this->pricing_type === 'hourly' ? '/ h' : 'fixed';
+    }
+
+    public function imageUrl(): string
+    {
+        return $this->image ? asset('storage/' . ltrim($this->image, '/')) : asset('images/placeholder.svg');
+    }
 }

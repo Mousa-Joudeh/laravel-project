@@ -66,4 +66,28 @@ class Package extends Model
     {
         return $this->morphMany(Favorite::class, 'favoritable');
     }
+
+    public const TYPES = [
+        'portrait'   => 'Portrait',
+        'wedding'    => 'Wedding',
+        'graduation' => 'Graduation',
+        'family'     => 'Family',
+        'product'    => 'Product',
+        'fashion'    => 'Fashion',
+        'podcast'    => 'Podcast',
+        'event'      => 'Event',
+        'other'      => 'Other',
+    ];
+
+    public function typeLabel(): string
+    {
+        return self::TYPES[$this->type] ?? ucfirst((string) $this->type);
+    }
+
+    public function coverUrl(): string
+    {
+        $image = $this->relationLoaded('images') ? $this->images->first() : $this->images()->orderBy('sort_order')->first();
+
+        return $image ? $image->url() : asset('images/placeholder.svg');
+    }
 }

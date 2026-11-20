@@ -62,4 +62,17 @@ class Booking extends Model
     {
         return $this->hasOne(Review::class, 'booking_id');
     }
+
+    /** Short label for lists: first booked item, or the studio name. */
+    public function title(): string
+    {
+        $item = $this->relationLoaded('items') ? $this->items->first() : $this->items()->first();
+
+        return $item?->item_name ?? $this->studio?->name ?? $this->reference;
+    }
+
+    public function hours(): float
+    {
+        return round($this->starts_at->diffInMinutes($this->ends_at) / 60, 1);
+    }
 }

@@ -82,4 +82,35 @@ class User extends Authenticatable
     {
         return $this->hasMany(PageVisit::class);
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isProvider(): bool
+    {
+        return $this->role === 'provider';
+    }
+
+    public function firstName(): string
+    {
+        return \Illuminate\Support\Str::of($this->name)->before(' ')->toString();
+    }
+
+    public function initials(): string
+    {
+        return \Illuminate\Support\Str::of($this->name)
+            ->explode(' ')->filter()->take(2)
+            ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))->implode('');
+    }
+
+    public function avatarUrl(): ?string
+    {
+        if (! $this->avatar) {
+            return null;
+        }
+
+        return str_starts_with($this->avatar, 'http') ? $this->avatar : asset('storage/' . ltrim($this->avatar, '/'));
+    }
 }

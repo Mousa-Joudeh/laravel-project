@@ -30,4 +30,9 @@ class StudioImage extends Model
     {
         return $this->belongsTo(Studio::class);
     }
+
+    public function url(): string
+    {
+        return asset('storage/' . ltrim($this->image_path, '/'));
+    }
 }

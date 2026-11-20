@@ -99,4 +99,18 @@ class Studio extends Model
     {
         return $this->morphMany(Favorite::class, 'favoritable');
     }
+
+    public function coverUrl(): string
+    {
+        $cover = $this->relationLoaded('images')
+            ? ($this->images->firstWhere('is_cover', true) ?? $this->images->first())
+            : ($this->images()->orderByDesc('is_cover')->orderBy('sort_order')->first());
+
+        return $cover ? $cover->url() : asset('images/placeholder.svg');
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === 'approved' && $this->is_active;
+    }
 }
