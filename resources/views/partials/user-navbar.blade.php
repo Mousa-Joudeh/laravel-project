@@ -26,8 +26,8 @@
             <nav class="nav-links">
                 <a href="{{ url('/') }}" class="{{ request()->is('/') ? 'active' : '' }}">Home</a>
 
-                @if (Route::has('provider-profiles.index'))
-                    <a href="{{ route('provider-profiles.index') }}" class="{{ request()->routeIs('provider-profiles.*') ? 'active' : '' }}">Studios</a>
+                @if (Route::has('studio-companies.index'))
+                    <a href="{{ route('studio-companies.index') }}" class="{{ request()->routeIs('studio-companies.*') ? 'active' : '' }}">Studios</a>
                 @endif
 
                 <a href="{{ route('studios.index') }}" class="{{ request()->routeIs('studios.*') ? 'active' : '' }}">Spaces</a>
@@ -94,8 +94,8 @@
     {{-- mobile menu --}}
     <div class="nav-drawer" id="mobile-menu">
         <a href="{{ url('/') }}">Home</a>
-        @if (Route::has('provider-profiles.index'))
-            <a href="{{ route('provider-profiles.index') }}">Studios</a>
+        @if (Route::has('studio-companies.index'))
+            <a href="{{ route('studio-companies.index') }}">Studios</a>
         @endif
         <a href="{{ route('studios.index') }}">Spaces</a>
         <a href="{{ route('bookings.index') }}">My Bookings</a>

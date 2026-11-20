@@ -1,0 +1,141 @@
+.studio-directory {
+    padding-block: 32px 48px;
+}
+
+.studio-directory-breadcrumb,
+.studio-directory-pagination {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--ink-2);
+    font-size: 14px;
+}
+
+.studio-directory-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-block: 12px 24px;
+}
+
+.studio-directory-header h1 {
+    font-size: clamp(26px, 4vw, 34px);
+}
+
+.studio-directory-header p {
+    margin-top: 6px;
+    color: var(--ink-2);
+}
+
+.studio-directory-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: min(100%, 330px);
+    padding: 5px 6px 5px 14px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: var(--bg);
+}
+
+.studio-directory-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+}
+
+.studio-company-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
+    gap: 20px;
+}
+
+.studio-company-card {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+}
+
+.studio-company-cover {
+    display: block;
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    background: var(--soft);
+}
+
+.studio-company-body {
+    position: relative;
+    padding: 32px 16px 16px;
+}
+
+.studio-company-logo {
+    position: absolute;
+    top: -25px;
+    left: 16px;
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+    border: 2px solid var(--bg);
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: var(--bg);
+    font-weight: 600;
+}
+
+.studio-company-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.studio-company-heading,
+.studio-company-counts {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+}
+
+.studio-company-heading {
+    justify-content: space-between;
+}
+
+.studio-company-heading h2 {
+    font-size: 16px;
+}
+
+.studio-company-heading span,
+.studio-company-body p,
+.studio-company-counts {
+    color: var(--ink-2);
+    font-size: 13px;
+}
+
+.studio-company-body p {
+    margin-top: 4px;
+}
+
+.studio-company-counts {
+    margin: 12px 0 0;
+    padding: 10px 0 0;
+    border-top: 1px solid var(--line);
+    list-style: none;
+}
+
+.studio-company-counts strong {
+    color: var(--ink);
+}
+
+.studio-directory-pagination {
+    justify-content: center;
+    margin-top: 24px;
+}

@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProviderProfileController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/studio-companies', [ProviderProfileController::class, 'publicIndex'])
+    ->name('studio-companies.index');
+
 Route::middleware('auth')->group(function () {
     Route::resource('provider-profiles', ProviderProfileController::class)
         ->parameters(['provider-profiles' => 'providerProfile']);
