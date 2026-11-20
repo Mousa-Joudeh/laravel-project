@@ -26,6 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
         Route::middleware('web')->group(base_path('routes/provider_profile.php'));
         Route::middleware('web')->group(base_path('routes/admin.php'));
         Route::middleware('web')->group(base_path('routes/provider.php'));
+        Route::middleware('web')->group(base_path('routes/landing.php'));
+        Route::middleware('web')->group(base_path('routes/package_slots.php'));
+        Route::middleware('web')->group(base_path('routes/booking_success.php'));
     },
     )
     ->withMiddleware(function (Middleware $middleware): void {
