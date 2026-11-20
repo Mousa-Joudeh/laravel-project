@@ -11,8 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
-        Route::middleware('web')->group(base_path('routes/booking.php'));
-        Route::middleware('web')->group(base_path('routes/review.php'));
+        Route::middleware('web')->group(base_path('routes/bookings.php'));
+        Route::middleware('web')->group(base_path('routes/reviews.php'));
+        Route::middleware('web')->group(base_path('routes/availabilities.php'));
+        Route::middleware('web')->group(base_path('routes/categories.php'));
+        Route::middleware('web')->group(base_path('routes/page-visits.php'));
+        Route::middleware('web')->group(base_path('routes/studio_types.php'));
+        Route::middleware('web')->group(base_path('routes/studios.php'));
     },
     )
     ->withMiddleware(function (Middleware $middleware): void {
