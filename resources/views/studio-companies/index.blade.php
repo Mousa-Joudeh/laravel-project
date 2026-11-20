@@ -33,7 +33,7 @@
 
         <div class="studio-company-grid">
             @forelse ($profiles as $profile)
-                <article class="studio-company-card">
+                <a class="studio-company-card" href="{{ route('studio-companies.show', ['slug' => $profile->slug]) }}">
                     <img class="studio-company-cover"
                          src="{{ $profile->coverUrl() ?? asset('images/placeholder.svg') }}"
                          alt="" loading="lazy">
@@ -65,7 +65,7 @@
                             <li><strong>{{ $profile->user->packages_count }}</strong> packages</li>
                         </ul>
                     </div>
-                </article>
+                </a>
             @empty
                 <p>No studios found.</p>
             @endforelse

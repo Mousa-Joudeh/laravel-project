@@ -67,6 +67,46 @@ class ProviderProfileController extends Controller
         return view('studio-companies.index', compact('profiles', 'search'));
     }
 
+    public function publicShow(string $slug)
+    {
+        $profile = ProviderProfile::query()
+            ->where('slug', $slug)
+            ->where('status', 'approved')
+            ->whereHas('user', function ($user) {
+                $user->where('role', 'provider')
+                    ->where('status', 'active');
+            })
+            ->firstOrFail();
+
+        $provider = $profile->user;
+
+        $spaces = $provider->studios()
+            ->where('studios.status', 'approved')
+            ->where('studios.is_active', true)
+            ->with(['images', 'type'])
+            ->orderBy('studios.name')
+            ->get();
+
+        $services = $provider->services()
+            ->where('services.status', 'approved')
+            ->where('services.is_active', true)
+            ->where('studios.status', 'approved')
+            ->where('studios.is_active', true)
+            ->with('studio')
+            ->orderBy('services.title')
+            ->get();
+
+        $packages = $provider->packages()
+            ->where('packages.is_active', true)
+            ->where('studios.status', 'approved')
+            ->where('studios.is_active', true)
+            ->with(['images', 'studio'])
+            ->orderBy('packages.name')
+            ->get();
+
+        return view('studio-companies.show', compact('profile', 'spaces', 'services', 'packages'));
+    }
+
     public function index()
     {
         $user = $this->activeUser();
