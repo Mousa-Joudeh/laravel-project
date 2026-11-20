@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         Route::middleware('web')->group(base_path('routes/landing.php'));
         Route::middleware('web')->group(base_path('routes/package_slots.php'));
         Route::middleware('web')->group(base_path('routes/booking_success.php'));
+        Route::middleware('web')->group(base_path('routes/my_bookings.php'));
     },
     )
     ->withMiddleware(function (Middleware $middleware): void {

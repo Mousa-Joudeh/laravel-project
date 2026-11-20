@@ -31,7 +31,7 @@
                 @endif
 
                 <a href="{{ route('studios.index') }}" class="{{ request()->routeIs('studios.*') ? 'active' : '' }}">Spaces</a>
-                <a href="{{ route('bookings.index') }}" class="{{ request()->routeIs('bookings.*') ? 'active' : '' }}">My Bookings</a>
+                <a href="{{ route('my-bookings.index') }}" class="{{ request()->routeIs('my-bookings.*') ? 'active' : '' }}">My Bookings</a>
             </nav>
 
             {{-- not logged in --}}
@@ -68,7 +68,7 @@
                             @if (Route::has('favorites.index'))
                                 <a href="{{ route('favorites.index') }}"><i class="bi bi-heart"></i> Favorites</a>
                             @endif
-                            <a href="{{ route('bookings.index') }}"><i class="bi bi-calendar2-check"></i> My Bookings</a>
+                            <a href="{{ route('my-bookings.index') }}"><i class="bi bi-calendar2-check"></i> My Bookings</a>
                         @endif
 
                         @if (Auth::user()->role === 'provider' && Route::has('provider.dashboard'))
@@ -98,7 +98,7 @@
             <a href="{{ route('studio-companies.index') }}">Studios</a>
         @endif
         <a href="{{ route('studios.index') }}">Spaces</a>
-        <a href="{{ route('bookings.index') }}">My Bookings</a>
+        <a href="{{ route('my-bookings.index') }}">My Bookings</a>
         @guest
             <a href="{{ route('login') }}">Login</a>
             <a href="{{ route('register') }}">Sign Up</a>

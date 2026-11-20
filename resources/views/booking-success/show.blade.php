@@ -47,7 +47,7 @@
             </div>
 
             <div class="success-actions">
-                <a href="{{ route('bookings.index') }}" class="btn btn-primary btn-lg"><i class="bi bi-calendar2-check"></i> My Bookings</a>
+                <a href="{{ route('my-bookings.index') }}" class="btn btn-primary btn-lg"><i class="bi bi-calendar2-check"></i> My Bookings</a>
                 <a href="{{ route('studios.index') }}" class="btn btn-light btn-lg">Keep exploring</a>
             </div>
         </div>
