@@ -25,24 +25,31 @@ class FavoriteController extends Controller
         $customer = $this->activeCustomer();
 
         $favorites = $customer->favorites()
-            ->with(['favoritable' => function (MorphTo $relation) {
-                $constraints = [];
-
-                foreach (self::TYPES as $model) {
-                    $constraints[$model] = function (Builder $query) use ($model) {
-                        $this->availableTarget($query, $model);
-
-                        $nameColumn = $model === Service::class ? 'title' : 'name';
-                        $query->select('id', $nameColumn);
-                    };
+            ->whereHasMorph(
+                'favoritable',
+                array_values(self::TYPES),
+                function (Builder $query, string $model) {
+                    $this->availableTarget($query, $model);
                 }
-
-                $relation->constrain($constraints);
+            )
+            ->with(['favoritable' => function (MorphTo $relation) {
+                $relation->morphWith([
+                    Studio::class => ['images', 'type'],
+                    Package::class => ['images', 'studio'],
+                    Service::class => ['studio'],
+                ]);
             }])
             ->latest('id')
-            ->paginate(15);
+            ->get();
 
-        return view('customer.favorites.index', compact('favorites'));
+        $favoritesByType = $favorites->groupBy('favoritable_type');
+
+        return view('customer.favorites.index', [
+            'favorites' => $favorites,
+            'spaces' => $favoritesByType->get((new Studio())->getMorphClass(), collect()),
+            'packages' => $favoritesByType->get((new Package())->getMorphClass(), collect()),
+            'services' => $favoritesByType->get((new Service())->getMorphClass(), collect()),
+        ]);
     }
 
     public function store(Request $request)
@@ -69,8 +76,7 @@ class FavoriteController extends Controller
             $favorite->restore();
         }
 
-        return redirect()->route('favorites.index')
-            ->with('success', 'Item saved to your favorites!');
+        return back()->with('success', 'Item saved to your favorites!');
     }
 
     public function destroy(Favorite $favorite)
@@ -81,36 +87,51 @@ class FavoriteController extends Controller
 
         $favorite->delete();
 
-        return redirect()->route('favorites.index')
-            ->with('success', 'Item removed from your favorites!');
+        return back()->with('success', 'Item removed from your favorites!');
     }
 
     private function activeCustomer(): User
     {
         $user = Auth::user();
 
-        if (!($user instanceof User) || $user->role !== 'customer' || $user->status !== 'active') {
-            abort(403);
-        }
+        abort_unless(
+            $user instanceof User
+                && $user->role === 'customer'
+                && $user->status === 'active',
+            403
+        );
 
         return $user;
     }
 
     private function availableTarget(Builder $query, string $model): Builder
     {
+        if ($model === Studio::class) {
+            return $this->availableStudio($query);
+        }
+
         $query->where('is_active', true);
 
-        if ($model === Studio::class || $model === Service::class) {
+        if ($model === Service::class) {
             $query->where('status', 'approved');
         }
 
-        if ($model !== Studio::class) {
-            $query->whereHas('studio', function (Builder $studio) {
-                $studio->where('status', 'approved')
-                    ->where('is_active', true);
-            });
-        }
+        return $query->whereHas('studio', function (Builder $studio) {
+            $this->availableStudio($studio);
+        });
+    }
 
-        return $query;
+    private function availableStudio(Builder $query): Builder
+    {
+        return $query
+            ->where('is_active', true)
+            ->where('status', 'approved')
+            ->whereHas('provider', function (Builder $provider) {
+                $provider->where('role', 'provider')
+                    ->where('status', 'active')
+                    ->whereHas('providerProfile', function (Builder $profile) {
+                        $profile->where('status', 'approved');
+                    });
+            });
     }
 }
