@@ -1,4 +1,5 @@
 <article class="package-card">
+    @include('partials.favorite-heart', ['type' => 'package', 'id' => $package->id])
     <a href="{{ route('packages.show', $package->id) }}" class="pk-media">
         <img src="{{ $package->cover_url }}" alt="{{ $package->name }}">
         <span class="tag tag-float">{{ ucfirst($package->type) }}</span>
