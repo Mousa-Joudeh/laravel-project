@@ -8,33 +8,27 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/admin/global.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/header.css') }}">
     @stack('styles')
 </head>
 <body class="admin-body">
+@inject('adminHeaderAlerts', 'App\Services\Admin\HeaderAlertsService')
+@php($headerSummary = $adminHeaderAlerts->summary())
 <div class="admin-shell">
     @include('admin.partials.sidebar')
     <button type="button" class="admin-backdrop" id="admin-backdrop" aria-label="Close navigation"></button>
 
     <div class="admin-main">
-        <header class="admin-topbar">
-            <div class="admin-topbar-left">
-                <button type="button" class="admin-menu-button" id="admin-menu-button" aria-controls="admin-sidebar" aria-expanded="false" aria-label="Open navigation">
-                    <i class="bi bi-list"></i>
-                </button>
-                <div class="admin-breadcrumb">SPACE <span>/</span> Administration <span>/</span> <strong>@yield('title', 'Overview')</strong></div>
-            </div>
-            <div class="admin-topbar-right">
-                <span class="admin-date">{{ now()->format('d M Y') }}</span>
-                <span class="admin-avatar">{{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
-            </div>
-        </header>
+        @include('admin.partials.header')
 
         <main class="admin-content">
             @yield('content')
         </main>
     </div>
 </div>
+@include('admin.partials.header-panels')
 <script src="{{ asset('js/admin.js') }}" defer></script>
+<script src="{{ asset('js/admin/header.js') }}" defer></script>
 @stack('scripts')
 </body>
 </html>

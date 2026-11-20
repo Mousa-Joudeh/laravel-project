@@ -1,0 +1,27 @@
+.traffic-summary strong{font-size:24px}
+.traffic-charts{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(290px,1fr);gap:16px}
+.traffic-chart-card,.traffic-popular{min-width:0;overflow:hidden}
+.traffic-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px}
+.traffic-panel-head h2{margin:0;font-size:15px;letter-spacing:-.02em;font-weight:650}
+.traffic-panel-head p{margin:5px 0 0;color:#8996a5;font-size:12px}
+.traffic-panel-head>span{font-size:11px;color:#8190a0;white-space:nowrap}
+.traffic-log-head{border-bottom:1px solid #edf0f2}
+.traffic-bar-chart{display:flex;align-items:stretch;gap:2px;height:235px;margin:4px 22px 18px;padding-top:11px;border-bottom:1px solid #e9edf0;background:repeating-linear-gradient(to top,transparent 0,transparent calc(25% - 1px),#f2f4f7 25%)}
+.traffic-bar-column{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.traffic-bar-track{width:100%;flex:1;display:flex;align-items:flex-end;justify-content:center}
+.traffic-bar{width:min(85%,18px);min-height:0;background:#0a947c;border-radius:4px 4px 0 0;transition:height .25s ease}
+.traffic-bar-column:hover .traffic-bar{background:#0b7366}
+.traffic-bar-column small{font-size:9px;color:#9aa8b7;white-space:nowrap;height:16px}
+.traffic-popular-list{padding:4px 22px 25px;display:flex;flex-direction:column;gap:24px}
+.traffic-popular-item{display:flex;flex-direction:column;gap:10px}
+.traffic-popular-top{display:flex;justify-content:space-between;gap:10px;font-size:12px}
+.traffic-popular-top strong{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.traffic-popular-top span{color:#66788a;font-variant-numeric:tabular-nums}
+.traffic-progress{height:7px;border-radius:8px;background:#edf1f3;overflow:hidden}
+.traffic-progress span{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#017969,#34c59a)}
+.traffic-empty{margin:12px 20px 25px;color:#8a98a7;font-size:12px}
+.traffic-disclaimer{margin:0 2px 10px}
+.traffic-disclaimer code{background:#edf0f4;border-radius:4px;padding:2px 4px;color:#374151}
+@media(max-width:960px){.traffic-charts{grid-template-columns:1fr}}
+@media(max-width:520px){.traffic-panel-head{padding:16px}.traffic-bar-chart{margin:0 15px 15px;height:190px}}
+@media print{.traffic-bar-chart{height:145px}.traffic-popular-list{gap:12px}}

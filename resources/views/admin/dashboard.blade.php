@@ -26,9 +26,9 @@
 
     <nav class="dash-quick-access" aria-label="Quick access">
         <a href="{{ route('admin.users.index') }}"><i class="bi bi-people"></i> Manage users <i class="bi bi-arrow-up-right"></i></a>
-        <a href="#dash-approvals"><i class="bi bi-patch-check"></i> Approval queue @if($pendingCount > 0)<span>{{ $pendingCount }}</span>@endif</a>
-        <a href="#dash-partners"><i class="bi bi-buildings"></i> Partner performance</a>
-        <a href="#dash-bookings"><i class="bi bi-calendar-check"></i> Bookings</a>
+        <a href="{{ route('admin.partners.index', ['status' => 'pending']) }}"><i class="bi bi-patch-check"></i> Approval queue @if($pendingCount > 0)<span>{{ $pendingCount }}</span>@endif</a>
+        <a href="{{ route('admin.partners.index') }}"><i class="bi bi-buildings"></i> Manage partners</a>
+        <a href="{{ route('admin.catalog.index') }}"><i class="bi bi-camera"></i> Studios & services</a>
     </nav>
 
     <section class="dash-kpi-grid" aria-label="Core business indicators">
@@ -108,7 +108,7 @@
                     <div class="dash-approval-row"><span class="dash-approval-icon"><i class="bi bi-{{ $approval['icon'] }}"></i></span><span>{{ $approval['label'] }}</span><strong>{{ number_format($approval['count']) }}</strong></div>
                 @endforeach
             </div>
-            <p class="dash-card-note">Approvals are informational until management pages are ready.</p>
+            <p class="dash-card-note"><a href="{{ route('admin.approvals.index') }}">Open approval queue</a></p>
         </article>
 
         <article class="dash-card" id="dash-partners">
@@ -131,8 +131,8 @@
     <section class="dash-card dash-bookings-card" id="dash-bookings">
         <div class="dash-card-head">
             <div><h2>Recent bookings</h2><p>Search and review reservations created in the selected period</p></div>
-            @if(Route::has('bookings.index'))
-                <a class="dash-see-all" href="{{ route('bookings.index') }}">View all <i class="bi bi-arrow-up-right"></i></a>
+            @if(Route::has('admin.operations.bookings'))
+                <a class="dash-see-all" href="{{ route('admin.operations.bookings') }}">View all <i class="bi bi-arrow-up-right"></i></a>
             @endif
         </div>
         <form method="GET" action="{{ route('admin.dashboard') }}#dash-bookings" class="dash-table-toolbar">

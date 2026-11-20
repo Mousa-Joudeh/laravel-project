@@ -1,0 +1,15 @@
+
+.workspace-dialog{width:min(580px,calc(100vw - 32px));max-height:min(88vh,790px);overflow-y:auto}
+.workspace-dialog .mgmt-dialog-body{padding-top:18px}
+.workspace-dialog .mgmt-detail-grid{margin-bottom:16px}
+.workspace-preserve{white-space:pre-wrap;overflow-wrap:anywhere}
+.workspace-subline{display:block;color:#8997a6;font-size:11px;margin-top:5px;font-weight:400}
+.workspace-comment{max-width:260px;color:#566579;white-space:normal;line-height:1.5}
+.workspace-stars{color:#d0a341;letter-spacing:1px;white-space:nowrap;font-size:16px}
+.workspace-instruction{font-size:13px;line-height:1.7;color:#556376;margin:0 0 18px}
+.workspace-danger{color:#b33d3d!important}
+.workspace-dialog .mgmt-form-alert[hidden], .workspace-dialog form[hidden]{display:none!important}
+.workspace-dialog .mgmt-review-actions{margin-top:16px}
+@media(max-width:920px){.mgmt-toolbar .mgmt-filters{flex-wrap:wrap}.workspace-comment{max-width:180px}}
+@media(max-width:640px){.workspace-dialog{width:calc(100vw - 18px)}.workspace-dialog .mgmt-detail-grid{grid-template-columns:1fr 1fr}.workspace-comment{max-width:115px}}
+@media print{.admin-sidebar,.admin-topbar,.mgmt-toolbar,.mgmt-actions,.sp-list-footer{display:none!important}.admin-content{padding:0!important}}
