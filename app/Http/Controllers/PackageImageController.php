@@ -6,13 +6,14 @@ use App\Models\Package;
 use App\Models\PackageImage;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PackageImageController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): View
     {
         $filters = $request->validate([
             'package_id' => 'sometimes|integer|exists:packages,id',
@@ -37,13 +38,13 @@ class PackageImageController extends Controller
             $query->where('package_id', $filters['package_id']);
         }
 
-        return response()->json(
-            $query->orderBy('sort_order')
-                ->paginate($filters['per_page'] ?? 15)
-        );
+        $images = $query->orderBy('sort_order')
+            ->paginate($filters['per_page'] ?? 15);
+
+        return view('customer.package-images.index', compact('images'));
     }
 
-    public function create(Request $request): JsonResponse
+    public function create(Request $request): View
     {
         $user = $this->manager($request);
 
@@ -59,12 +60,12 @@ class PackageImageController extends Controller
             );
         }
 
-        return response()->json([
-            'packages' => $query->orderBy('name')->get(),
-        ]);
+        $packages = $query->orderBy('name')->get();
+
+        return view('package-images.create', compact('packages'));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): RedirectResponse
     {
         $user = $this->manager($request);
 
@@ -81,7 +82,7 @@ class PackageImageController extends Controller
         $path = $request->file('image')->store('packages', 'public');
 
         try {
-            $image = PackageImage::create([
+            PackageImage::create([
                 'package_id' => $package->id,
                 'image_path' => $path,
                 'sort_order' => $data['sort_order'] ?? 0,
@@ -91,40 +92,37 @@ class PackageImageController extends Controller
             throw $e;
         }
 
-        return response()->json([
-            'message' => 'Package image uploaded',
-            'image' => $image,
-        ], 201);
+        return redirect()
+            ->route('packages.show', $package)
+            ->with('success', 'Package image uploaded successfully.');
     }
 
     public function show(
         Request $request,
         PackageImage $packageImage
-    ): JsonResponse {
+    ): View {
         $this->checkVisibility($request, $packageImage);
 
-        return response()->json(
-            $packageImage->load(
-                'package:id,studio_id,name,is_active'
-            )
-        );
+        $packageImage->load('package:id,studio_id,name,is_active');
+
+        return view('customer.package-images.show', compact('packageImage'));
     }
 
     public function edit(
         Request $request,
         PackageImage $packageImage
-    ): JsonResponse {
+    ): View {
         $user = $this->manager($request);
 
         $this->checkOwner($user, $packageImage->package);
 
-        return response()->json($packageImage);
+        return view('package-images.edit', compact('packageImage'));
     }
 
     public function update(
         Request $request,
         PackageImage $packageImage
-    ): JsonResponse {
+    ): RedirectResponse {
         $user = $this->manager($request);
 
         $this->checkOwner($user, $packageImage->package);
@@ -162,25 +160,25 @@ class PackageImageController extends Controller
             Storage::disk('public')->delete($oldPath);
         }
 
-        return response()->json([
-            'message' => 'Package image updated',
-            'image' => $packageImage->refresh(),
-        ]);
+        return redirect()
+            ->route('packages.show', $packageImage->package)
+            ->with('success', 'Package image updated successfully.');
     }
 
     public function destroy(
         Request $request,
         PackageImage $packageImage
-    ): JsonResponse {
+    ): RedirectResponse {
         $user = $this->manager($request);
 
         $this->checkOwner($user, $packageImage->package);
 
+        $package = $packageImage->package;
         $packageImage->delete();
 
-        return response()->json([
-            'message' => 'Package image deleted',
-        ]);
+        return redirect()
+            ->route('packages.show', $package)
+            ->with('success', 'Package image deleted successfully.');
     }
 
     private function manager(Request $request): User

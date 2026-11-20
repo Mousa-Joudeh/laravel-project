@@ -7,16 +7,17 @@ use App\Models\Service;
 use App\Models\Studio;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class PackageController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): View
     {
         $filters = $request->validate([
             'studio_id' => 'sometimes|integer|exists:studios,id',
@@ -52,10 +53,10 @@ class PackageController extends Controller
             );
         }
 
-        return response()->json($packages);
+        return view('customer.packages.index', compact('packages'));
     }
 
-    public function create(Request $request): JsonResponse
+    public function create(Request $request): View
     {
         $user = $this->manager($request);
 
@@ -65,12 +66,12 @@ class PackageController extends Controller
             $studios->where('provider_id', $user->id);
         }
 
-        return response()->json([
-            'studios' => $studios->orderBy('name')->get(),
-        ]);
+        $studios = $studios->orderBy('name')->get();
+
+        return view('packages.create', compact('studios'));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): RedirectResponse
     {
         $user = $this->manager($request);
         $data = $this->validatedFields($request, true);
@@ -84,20 +85,15 @@ class PackageController extends Controller
 
         $package = Package::create($data);
 
-        return response()->json([
-            'message' => 'Package created',
-            'package' => $package->load([
-                'studio',
-                'services',
-                'images',
-            ]),
-        ], 201);
+        return redirect()
+            ->route('packages.show', $package)
+            ->with('success', 'Package created successfully.');
     }
 
     public function show(
         Request $request,
         Package $package
-    ): JsonResponse {
+    ): View {
         $this->checkVisibility($request, $package);
 
         $package->load(['studio', 'services', 'images']);
@@ -111,26 +107,26 @@ class PackageController extends Controller
             $this->sanitizePublic($package);
         }
 
-        return response()->json($package);
+        return view('customer.packages.show', compact('package'));
     }
 
     public function edit(
         Request $request,
         Package $package
-    ): JsonResponse {
+    ): View {
         $user = $this->manager($request);
 
         $this->checkStudioOwner($user, $package->studio);
 
-        return response()->json(
-            $package->load(['studio', 'services', 'images'])
-        );
+        $package->load(['studio', 'services', 'images']);
+
+        return view('packages.edit', compact('package'));
     }
 
     public function update(
         Request $request,
         Package $package
-    ): JsonResponse {
+    ): RedirectResponse {
         $user = $this->manager($request);
 
         $this->checkStudioOwner($user, $package->studio);
@@ -148,35 +144,30 @@ class PackageController extends Controller
 
         $package->update($data);
 
-        return response()->json([
-            'message' => 'Package updated',
-            'package' => $package->refresh()->load([
-                'studio',
-                'services',
-                'images',
-            ]),
-        ]);
+        return redirect()
+            ->route('packages.show', $package)
+            ->with('success', 'Package updated successfully.');
     }
 
     public function destroy(
         Request $request,
         Package $package
-    ): JsonResponse {
+    ): RedirectResponse {
         $user = $this->manager($request);
 
         $this->checkStudioOwner($user, $package->studio);
 
         $package->delete();
 
-        return response()->json([
-            'message' => 'Package deleted',
-        ]);
+        return redirect()
+            ->route('packages.index')
+            ->with('success', 'Package deleted successfully.');
     }
 
     public function syncServices(
         Request $request,
         Package $package
-    ): JsonResponse {
+    ): RedirectResponse {
         $user = $this->manager($request);
 
         $this->checkStudioOwner($user, $package->studio);
@@ -202,10 +193,9 @@ class PackageController extends Controller
             $package->services()->sync($serviceIds);
         });
 
-        return response()->json([
-            'message' => 'Package services updated',
-            'package' => $package->load('services'),
-        ]);
+        return redirect()
+            ->route('packages.show', $package)
+            ->with('success', 'Package services updated successfully.');
     }
 
     private function manager(Request $request): User

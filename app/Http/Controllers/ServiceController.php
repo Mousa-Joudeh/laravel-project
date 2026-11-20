@@ -6,7 +6,8 @@ use App\Models\Service;
 use App\Models\Studio;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 
 class ServiceController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): View
     {
         $filters = $request->validate([
             'q' => 'sometimes|string|max:150',
@@ -64,10 +65,10 @@ class ServiceController extends Controller
             );
         }
 
-        return response()->json($items);
+        return view('customer.services.index', ['services' => $items]);
     }
 
-    public function create(Request $request): JsonResponse
+    public function create(Request $request): View
     {
         $user = $this->manager($request);
 
@@ -77,15 +78,20 @@ class ServiceController extends Controller
             $studios->where('provider_id', $user->id);
         }
 
-        return response()->json([
-            'studios' => $studios->orderBy('name')->get(),
-            'kinds' => ['core', 'addon', 'both'],
-            'delivery_modes' => ['at_studio', 'at_client', 'online'],
-            'pricing_types' => ['hourly', 'fixed'],
-        ]);
+        $studios = $studios->orderBy('name')->get();
+        $kinds = ['core', 'addon', 'both'];
+        $deliveryModes = ['at_studio', 'at_client', 'online'];
+        $pricingTypes = ['hourly', 'fixed'];
+
+        return view('services.create', compact(
+            'studios',
+            'kinds',
+            'deliveryModes',
+            'pricingTypes'
+        ));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): RedirectResponse
     {
         $user = $this->manager($request);
         $data = $this->validatedFields($request, true);
@@ -124,25 +130,24 @@ class ServiceController extends Controller
             throw $e;
         }
 
-        return response()->json([
-            'message' => 'Service created',
-            'service' => $service,
-        ], 201);
+        return redirect()
+            ->route('services.show', $service)
+            ->with('success', 'Service created successfully.');
     }
 
-    public function show(Request $request, Service $service): JsonResponse
+    public function show(Request $request, Service $service): View
     {
         $user = $request->user();
 
         if ($user?->role === 'admin') {
-            return response()->json($service);
+            return view('customer.services.show', compact('service'));
         }
 
         if (
             $user?->role === 'provider' &&
             (int) $service->studio?->provider_id === (int) $user->id
         ) {
-            return response()->json($service);
+            return view('customer.services.show', compact('service'));
         }
 
         $query = Service::whereKey($service->id);
@@ -151,27 +156,26 @@ class ServiceController extends Controller
 
         abort_unless($query->exists(), 404);
 
-        return response()->json(
-            $service->makeHidden('admin_note')
-        );
+        $service->makeHidden('admin_note');
+
+        return view('customer.services.show', compact('service'));
     }
 
-    public function edit(Request $request, Service $service): JsonResponse
+    public function edit(Request $request, Service $service): View
     {
         $user = $this->manager($request);
 
         $this->checkServiceOwner($user, $service);
 
-        return response()->json([
-            'service' => $service,
-            'studio' => $service->studio,
-        ]);
+        $studio = $service->studio;
+
+        return view('services.edit', compact('service', 'studio'));
     }
 
     public function update(
         Request $request,
         Service $service
-    ): JsonResponse {
+    ): RedirectResponse {
         $user = $this->manager($request);
 
         $this->checkServiceOwner($user, $service);
@@ -227,25 +231,24 @@ class ServiceController extends Controller
             Storage::disk('public')->delete($oldImage);
         }
 
-        return response()->json([
-            'message' => 'Service updated',
-            'service' => $service->refresh(),
-        ]);
+        return redirect()
+            ->route('services.show', $service)
+            ->with('success', 'Service updated successfully.');
     }
 
     public function destroy(
         Request $request,
         Service $service
-    ): JsonResponse {
+    ): RedirectResponse {
         $user = $this->manager($request);
 
         $this->checkServiceOwner($user, $service);
 
         $service->delete();
 
-        return response()->json([
-            'message' => 'Service deleted',
-        ]);
+        return redirect()
+            ->route('services.index')
+            ->with('success', 'Service deleted successfully.');
     }
 
     private function manager(Request $request): User
