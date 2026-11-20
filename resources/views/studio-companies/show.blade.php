@@ -65,43 +65,7 @@
 
             <div class="company-listing-grid">
                 @forelse ($spaces as $space)
-                    <article class="company-listing-card company-space-card">
-                        <div class="company-space-photo slider">
-                            <a class="slides" href="{{ route('studios.show', $space->id) }}"
-                            aria-label="View {{ $space->name }}">
-                                @forelse ($space->images as $image)
-                                    <img src="{{ $image->url() }}" alt="" loading="lazy">
-                                @empty
-                                    <img src="{{ $space->coverUrl() }}" alt="" loading="lazy">
-                                @endforelse
-                            </a>
-
-                            @if ($space->type)
-                                <span class="company-card-label">{{ $space->type->name }}</span>
-                            @endif
-
-                            @if ($space->images->count() > 1)
-                                <button class="slide-btn prev" type="button" aria-label="Previous photo">
-                                    <i class="bi bi-chevron-left" aria-hidden="true"></i>
-                                </button>
-                                <button class="slide-btn next" type="button" aria-label="Next photo">
-                                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
-                                </button>
-                            @endif
-                        </div>
-
-                        <div class="company-listing-content">
-                            <h3><a href="{{ route('studios.show', $space->id) }}">{{ $space->name }}</a></h3>
-                            <div class="company-card-meta">
-                                <span class="muted">
-                                    @if ($space->city)
-                                        <i class="bi bi-geo-alt" aria-hidden="true"></i> {{ $space->city }}
-                                    @endif
-                                </span>
-                                <span><strong>JD {{ $space->hourly_price + 0 }}</strong> / hour</span>
-                            </div>
-                        </div>
-                    </article>
+                    @include('customer.favorites.space-card', ['studio' => $space])
                 @empty
                     <p class="muted">No spaces published yet.</p>
                 @endforelse

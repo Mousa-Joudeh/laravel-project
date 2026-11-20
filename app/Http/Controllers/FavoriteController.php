@@ -10,7 +10,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FavoriteController extends Controller
 {
@@ -35,7 +37,7 @@ class FavoriteController extends Controller
             ->with(['favoritable' => function (MorphTo $relation) {
                 $relation->morphWith([
                     Studio::class => ['images', 'type'],
-                    Package::class => ['images', 'studio'],
+                    Package::class => ['images', 'studio.images'],
                     Service::class => ['studio'],
                 ]);
             }])
@@ -44,10 +46,13 @@ class FavoriteController extends Controller
 
         $favoritesByType = $favorites->groupBy('favoritable_type');
 
+        $packages = $favoritesByType->get((new Package())->getMorphClass(), collect());
+        $this->preparePackageCards($packages);
+
         return view('customer.favorites.index', [
             'favorites' => $favorites,
             'spaces' => $favoritesByType->get((new Studio())->getMorphClass(), collect()),
-            'packages' => $favoritesByType->get((new Package())->getMorphClass(), collect()),
+            'packages' => $packages,
             'services' => $favoritesByType->get((new Service())->getMorphClass(), collect()),
         ]);
     }
@@ -88,6 +93,37 @@ class FavoriteController extends Controller
         $favorite->delete();
 
         return back()->with('success', 'Item removed from your favorites!');
+    }
+
+    private function preparePackageCards(Collection $favorites): void
+    {
+        if ($favorites->isEmpty()) {
+            return;
+        }
+
+        $ratings = DB::table('booking_items as bi')
+            ->join('bookings as b', 'b.id', '=', 'bi.booking_id')
+            ->join('reviews as r', 'r.booking_id', '=', 'b.id')
+            ->whereIn('bi.package_id', $favorites->pluck('favoritable_id'))
+            ->whereNull('bi.deleted_at')
+            ->whereNull('b.deleted_at')
+            ->whereNull('r.deleted_at')
+            ->selectRaw('bi.package_id, AVG(r.rating) as average, COUNT(DISTINCT r.booking_id) as total')
+            ->groupBy('bi.package_id')
+            ->get()
+            ->keyBy('package_id');
+
+        foreach ($favorites as $favorite) {
+            $package = $favorite->favoritable;
+            $rating = $ratings->get($package->id);
+
+            $package->cover_url = $package->images->sortBy('sort_order')->first()?->url()
+                ?? $package->studio?->coverUrl()
+                ?? asset('images/placeholder.svg');
+
+            $package->rating = round((float) ($rating->average ?? 0), 1);
+            $package->reviews_total = (int) ($rating->total ?? 0);
+        }
     }
 
     private function activeCustomer(): User
