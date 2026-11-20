@@ -39,7 +39,12 @@ class PackageImageController extends Controller
         }
 
         $images = $query->orderBy('sort_order')
-            ->paginate($filters['per_page'] ?? 15);
+            ->paginate($filters['per_page'] ?? 15)
+            ->withQueryString();
+
+        $images->getCollection()->each(fn (PackageImage $image) =>
+            $image->setAttribute('url', $image->url())
+        );
 
         return view('customer.package-images.index', compact('images'));
     }
@@ -104,6 +109,7 @@ class PackageImageController extends Controller
         $this->checkVisibility($request, $packageImage);
 
         $packageImage->load('package:id,studio_id,name,is_active');
+        $packageImage->setAttribute('url', $packageImage->url());
 
         return view('customer.package-images.show', compact('packageImage'));
     }
