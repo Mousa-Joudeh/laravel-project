@@ -106,7 +106,7 @@ class BookingController extends Controller
             ? auth()->id()
             : $validated['customer_id'];
 
-        Booking::create([
+           $booking = Booking::create([
             'reference' => 'SPC-' . strtoupper(Str::random(8)),
             'customer_id' => $customerId,
             'studio_id' => $studio->id,
@@ -117,6 +117,11 @@ class BookingController extends Controller
             'currency' => 'JOD',
             'status' => 'pending_payment',
         ]);
+
+                
+        if ($role === 'customer') {
+            return redirect()->route('bookings.success', $booking->id);
+        }
 
         return redirect()->route('bookings.index')
             ->with('success', 'Booking created successfully!');
