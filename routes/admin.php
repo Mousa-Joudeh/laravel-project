@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ApprovalQueueController;
 use App\Http\Controllers\Admin\OperationsController;
 use App\Http\Controllers\Admin\PackageApprovalController;
 use App\Http\Controllers\Admin\CsvToolsController;
+use App\Http\Controllers\Admin\AiAssistantController;
 use App\Http\Middleware\EnsureAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,9 @@ Route::middleware(['auth', EnsureAdmin::class])
         Route::patch('/catalog/services/{service}/review', [CatalogManagementController::class, 'reviewService'])->name('catalog.services.review');
 
         Route::get('/analytics', [TrafficAnalyticsController::class, 'index'])->name('analytics.index');
+        Route::get('/intelligence', [AiAssistantController::class, 'index'])->name('ai.index');
+        Route::post('/intelligence/chat', [AiAssistantController::class, 'chat'])->middleware('throttle:6,1')->name('ai.chat');
+        Route::post('/intelligence/briefing', [AiAssistantController::class, 'briefing'])->middleware('throttle:2,1')->name('ai.briefing');
         Route::patch('/catalog/packages/{package}/review', [PackageApprovalController::class, 'review'])->name('catalog.packages.review');
         Route::get('/approvals', [ApprovalQueueController::class, 'index'])->name('approvals.index');
         Route::get('/operations/bookings', [OperationsController::class, 'bookings'])->name('operations.bookings');

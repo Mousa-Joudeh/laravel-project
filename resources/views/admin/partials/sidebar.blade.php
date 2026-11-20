@@ -22,6 +22,9 @@
         <a class="admin-nav-link {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}" href="{{ route('admin.analytics.index') }}">
             <i class="bi bi-graph-up-arrow"></i><span>Analytics & Traffic</span>
         </a>
+        <a class="admin-nav-link {{ request()->routeIs('admin.ai.*') ? 'active' : '' }}" href="{{ route('admin.ai.index') }}">
+            <i class="bi bi-stars"></i><span>AI Intelligence</span>
+        </a>
 
         <span class="admin-nav-label">Management</span>
         <a
