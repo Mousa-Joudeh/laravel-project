@@ -153,6 +153,24 @@
                 </div>
 
                 <div class="sp-create-field">
+                <label for="create-company-name">
+                    Company name (providers only)
+                </label>
+
+                <input
+                    id="create-company-name"
+                    name="company_name"
+                    type="text"
+                    class="sp-input"
+                    maxlength="150"
+                    value="{{ old('company_name') }}"
+                    placeholder="Enter company name"
+                >
+
+                <small data-error-for="company_name"></small>
+            </div>
+
+                <div class="sp-create-field">
                     <label for="create-status">
                         Account status <span>*</span>
                     </label>
