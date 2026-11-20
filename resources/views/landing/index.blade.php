@@ -137,6 +137,7 @@
             <div class="grid grid-3">
                 @forelse ($topPackages as $package)
                     <article class="package-card reveal">
+                        @include('partials.favorite-heart', ['type' => 'package', 'id' => $package->id])
                         <a href="{{ route('packages.show', $package->id) }}" class="media vf-hover">
                             <img src="{{ $package->cover_url }}" alt="{{ $package->name }}">
                             <span class="tag tag-float">{{ ucfirst($package->type) }}</span>
@@ -181,6 +182,7 @@
                     @for ($copy = 1; $copy <= 2; $copy++)
                         @foreach ($topSpaces as $studio)
                             <article class="space-card">
+                                @include('partials.favorite-heart', ['type' => 'studio', 'id' => $studio->id])
                                 <a href="{{ route('studios.show', $studio->id) }}" class="media vf-hover">
                                     <img src="{{ $studio->cover_url }}" alt="{{ $studio->name }}">
                                     @if ($studio->type)

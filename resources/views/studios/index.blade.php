@@ -91,6 +91,7 @@
                     <div class="grid grid-3">
                         @foreach ($studios as $studio)
                             <article class="space-card">
+                                @include('partials.favorite-heart', ['type' => 'studio', 'id' => $studio->id])
                                 <div class="media slider">
                                     <a href="{{ route('studios.show', $studio->id) }}" class="slides">
                                         @forelse ($studio->images as $image)
