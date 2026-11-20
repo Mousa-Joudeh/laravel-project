@@ -29,4 +29,20 @@ class ProviderProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function initials(): string
+    {
+        return \Illuminate\Support\Str::of($this->company_name)
+            ->explode(' ')->filter()->take(2)
+            ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))->implode('');
+    }
+
+    public function logoUrl(): ?string
+    {
+        if (! $this->logo) {
+            return null;
+        }
+
+        return str_starts_with($this->logo, 'http') ? $this->logo : asset('storage/' . ltrim($this->logo, '/'));
+    }
 }

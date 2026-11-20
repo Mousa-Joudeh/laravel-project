@@ -3,158 +3,203 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
+use Throwable;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        $role = auth()->user()->role;
+        $query = Category::query();
 
-        if ($role === 'admin') {
-
-            $categories = Category::latest()->paginate(15);
-
-            return view('admin.categories.index', compact('categories'));
-
-        } elseif ($role === 'provider') {
-
-            $categories = Category::where('is_active', true)
-                ->latest()
-                ->paginate(15);
-
-            return view('provider.categories.index', compact('categories'));
-
-        } elseif ($role === 'customer') {
-
-            $categories = Category::where('is_active', true)
-                ->latest()
-                ->paginate(15);
-
-            return view('customer.categories.index', compact('categories'));
+        if (auth()->user()?->role !== 'admin') {
+            $query->where('is_active', true);
         }
 
-        abort(403);
+        $categories = $query
+            ->orderBy('name')
+            ->paginate(15);
+
+        return view('categories.index', compact('categories'));
     }
 
-    public function create()
+    public function create(): View
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        $this->ensureAdmin();
 
-        return view('admin.categories.create');
+        return view('categories.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        $this->ensureAdmin();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name',
-            'is_active' => 'nullable|boolean',
-            'img' => 'nullable|image|max:2048',
+            'name' => ['required', 'string', 'max:100'],
+            'is_active' => ['sometimes', 'boolean'],
+            'img' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
         ]);
 
         $data = [
             'name' => $validated['name'],
-            'slug' => Str::slug($validated['name']),
-            'is_active' => $request->boolean('is_active'),
+            'slug' => $this->generateUniqueSlug($validated['name']),
+            'is_active' => $request->boolean('is_active', true),
+            'img' => null,
         ];
 
         if ($request->hasFile('img')) {
-            $data['img'] = $request->file('img')->store('categories', 'public');
+            $data['img'] = $request->file('img')
+                ->store('categories', 'public');
         }
 
-        Category::create($data);
+        try {
+            Category::create($data);
+        } catch (Throwable $exception) {
+            // حذف الصورة الجديدة إذا فشل حفظ السجل.
+            if ($data['img'] !== null) {
+                Storage::disk('public')->delete($data['img']);
+            }
+
+            throw $exception;
+        }
 
         return redirect()->route('categories.index')
-            ->with('success', 'Category created successfully!');
+            ->with('success', 'Category created successfully.');
     }
 
-    public function show(Category $category)
+    public function show(Category $category): View
     {
-        $role = auth()->user()->role;
-
-        if ($role === 'admin') {
-
-            $category = Category::findOrFail($category->id);
-
-            return view('admin.categories.show', compact('category'));
-
-        } elseif ($role === 'provider') {
-
-            $category = Category::where('is_active', true)
-                ->findOrFail($category->id);
-
-            return view('provider.categories.show', compact('category'));
-
-        } elseif ($role === 'customer') {
-
-            $category = Category::where('is_active', true)
-                ->findOrFail($category->id);
-
-            return view('customer.categories.show', compact('category'));
+        if (
+            auth()->user()?->role !== 'admin'
+            && !$category->is_active
+        ) {
+            abort(404);
         }
 
-        abort(403);
+        return view('categories.show', compact('category'));
     }
 
-    public function edit(Category $category)
+    public function edit(Category $category): View
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        $this->ensureAdmin();
 
-        $category = Category::findOrFail($category->id);
-
-        return view('admin.categories.edit', compact('category'));
+        return view('categories.edit', compact('category'));
     }
 
-    public function update(Request $request, Category $category)
-    {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
-        $category = Category::findOrFail($category->id);
+    public function update(
+        Request $request,
+        Category $category
+    ): RedirectResponse {
+        $this->ensureAdmin();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name,' . $category->id,
-            'is_active' => 'nullable|boolean',
-            'img' => 'nullable|image|max:2048',
+            'name' => ['required', 'string', 'max:100'],
+            'is_active' => ['sometimes', 'boolean'],
+            'img' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
         ]);
 
         $data = [
             'name' => $validated['name'],
-            'slug' => Str::slug($validated['name']),
-            'is_active' => $request->boolean('is_active'),
         ];
 
-        if ($request->hasFile('img')) {
-            $data['img'] = $request->file('img')->store('categories', 'public');
+        if (array_key_exists('is_active', $validated)) {
+            $data['is_active'] = $request->boolean('is_active');
         }
 
-        $category->update($data);
+        $oldImage = $category->img;
+        $newImage = null;
+
+        if ($request->hasFile('img')) {
+            $newImage = $request->file('img')
+                ->store('categories', 'public');
+
+            $data['img'] = $newImage;
+        }
+
+        try {
+            $category->update($data);
+        } catch (Throwable $exception) {
+            // حذف الصورة الجديدة إذا فشل التعديل.
+            if ($newImage !== null) {
+                Storage::disk('public')->delete($newImage);
+            }
+
+            throw $exception;
+        }
+
+        // حذف الصورة القديمة بعد نجاح حفظ البديلة.
+        if ($newImage !== null && $oldImage !== null) {
+            Storage::disk('public')->delete($oldImage);
+        }
 
         return redirect()->route('categories.index')
-            ->with('success', 'Category updated successfully!');
+            ->with('success', 'Category updated successfully.');
     }
 
-    public function destroy(Category $category)
+    public function destroy(Category $category): RedirectResponse
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
+        $this->ensureAdmin();
+
+        // يشمل الاستوديوهات المحذوفة منطقيًا أيضًا.
+        if ($category->studios()->withTrashed()->exists()) {
+            return redirect()->route('categories.index')
+                ->with(
+                    'error',
+                    'Cannot delete a category linked to studios.'
+                );
         }
 
-        $category = Category::findOrFail($category->id);
-
+        // Soft Delete: نحتفظ بالصورة مع السجل.
         $category->delete();
 
         return redirect()->route('categories.index')
-            ->with('success', 'Category deleted successfully!');
+            ->with('success', 'Category deleted successfully.');
+    }
+
+    private function ensureAdmin(): void
+    {
+        if (auth()->user()?->role !== 'admin') {
+            abort(403);
+        }
+    }
+
+    private function generateUniqueSlug(string $name): string
+    {
+        $baseSlug = Str::slug($name);
+
+        if ($baseSlug === '') {
+            $baseSlug = 'category';
+        }
+
+        $baseSlug = Str::substr($baseSlug, 0, 100);
+
+        $slug = $baseSlug;
+        $suffix = 1;
+
+        // نتجنب تكرار slug حتى مع السجلات المحذوفة منطقيًا.
+        while (
+            Category::withTrashed()
+                ->where('slug', $slug)
+                ->exists()
+        ) {
+            $slug = $baseSlug . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $slug;
     }
 }

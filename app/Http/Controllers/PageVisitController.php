@@ -3,50 +3,40 @@
 namespace App\Http\Controllers;
 
 use App\Models\PageVisit;
-use Illuminate\Http\Request;
+use Illuminate\View\View;
+
 
 class PageVisitController extends Controller
 {
-
-    public function index(Request $request)
-    {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
-        $query = PageVisit::with('user')->latest('visited_at');
-
-        if ($request->filled('route_name')) {
-            $query->where('route_name', $request->route_name);
-        }
-
-        $visits = $query->paginate(15);
-
-        return view('admin.page-visits.index', compact('visits'));
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): View
+{
+    if (auth()->user()?->role !== 'admin') {
+        abort(403);
     }
 
-    public function show(PageVisit $pageVisit)
-    {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+    $pageVisits = PageVisit::query()
+        ->select('route_name')
+        ->selectRaw('COUNT(*) AS visits_count')
+        ->groupBy('route_name')
+        ->orderByDesc('visits_count')
+        ->orderBy('route_name')
+        ->paginate(15);
 
-        $visit = PageVisit::with('user')->findOrFail($pageVisit->id);
-
-        return view('admin.page-visits.show', compact('visit'));
-    }
-
-    public function destroy(PageVisit $pageVisit)
-    {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
-        $pageVisit = PageVisit::findOrFail($pageVisit->id);
-
-        $pageVisit->delete();
-
-        return redirect()->route('page-visits.index')
-            ->with('success', 'Page visit deleted successfully!');
-    }
+    return view('page-visits.index', compact('pageVisits'));
 }
+
+public function show(PageVisit $pageVisit): View
+{
+    if (auth()->user()?->role !== 'admin') {
+        abort(403);
+    }
+
+    $pageVisit->load('user');
+
+    return view('page-visits.show', compact('pageVisit'));
+}
+}
+
