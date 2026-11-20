@@ -64,7 +64,7 @@
 
                 <div class="hero-quick reveal">
                     @foreach ($studioTypes->take(5) as $type)
-                        <a href="{{ route('studiotypes.show', $type->id) }}">{{ $type->name }}</a>
+                        <a href="{{ route('studios.index', ['type' => $type->id]) }}">{{ $type->name }}</a>
                     @endforeach
                 </div>
 
@@ -218,12 +218,12 @@
                     <span class="eyebrow"><b>03</b> — Browse by type</span>
                     <h2 class="section-title">Popular <span class="serif">categories</span></h2>
                 </div>
-                <a href="{{ route('studiotypes.index') }}" class="link-more">All types <i class="bi bi-arrow-right"></i></a>
+                <a href="{{ route('studios.index') }}" class="link-more">All types <i class="bi bi-arrow-right"></i></a>
             </div>
 
             <div class="types-grid">
                 @foreach ($studioTypes as $type)
-                    <a href="{{ route('studiotypes.show', $type->id) }}" class="type-card reveal">
+                    <a href="{{ route('studios.index', ['type' => $type->id]) }}" class="type-card reveal">
                         @if ($type->image)
                             <img src="{{ asset('storage/' . $type->image) }}" alt="">
                         @endif

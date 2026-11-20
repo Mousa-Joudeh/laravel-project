@@ -102,4 +102,6 @@
     .modal { padding: 0; align-items: flex-end; }
     .modal-box { max-width: none; border-radius: 22px 22px 0 0; max-height: 92vh; }
     .section-head { flex-direction: column; align-items: flex-start; }
+    
 }
+.sum-row[hidden] { display: none; }
