@@ -71,7 +71,8 @@
     font-size: 14px;
 }
 
-.auth-field input {
+.auth-field input,
+.auth-field select {
     width: 100%;
     min-height: 44px;
     padding: 8px 12px;
@@ -82,12 +83,14 @@
     font: inherit;
 }
 
-.auth-field input:focus {
+.auth-field input:focus,
+.auth-field select:focus {
     outline: 2px solid var(--ink);
     outline-offset: 2px;
 }
 
-.auth-field input[aria-invalid="true"] {
+.auth-field input[aria-invalid="true"],
+.auth-field select[aria-invalid="true"] {
     border-color: var(--bad);
 }
 
@@ -126,5 +129,65 @@
 
     .auth-panel {
         padding: 24px 0;
+    }
+}
+.auth-account-types {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    border-radius: var(--radius-lg);
+    background: var(--soft);
+}
+
+.auth-account-types label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: var(--radius);
+    color: var(--ink-2);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.auth-account-types label:has(input:checked) {
+    background: var(--bg);
+    color: var(--ink);
+}
+
+.auth-account-types input {
+    margin: 0;
+    accent-color: var(--accent);
+}
+
+.auth-field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 14px;
+}
+
+.auth-studio-fields {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.auth-studio-fields:not([hidden]) {
+    display: grid;
+    gap: 14px;
+}
+
+.auth-review-note {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 13px;
+}
+
+@media (max-width: 420px) {
+    .auth-field-row {
+        grid-template-columns: 1fr;
     }
 }
