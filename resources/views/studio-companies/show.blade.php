@@ -3,6 +3,8 @@
 @section('title', $profile->company_name)
 
 @push('styles')
+    <link rel="stylesheet" href="{{ asset('css/studios.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/packages.css') }}">
     <link rel="stylesheet" href="{{ asset('css/studio-companies.css') }}">
 @endpush
 
@@ -111,7 +113,7 @@
 
             <div class="company-listing-grid">
                 @forelse ($services as $service)
-                    <article class="company-listing-card company-service-card">
+                    <a class="company-listing-card company-service-card" href="{{ route('services.show', $service->id) }}" aria-label="{{ $service->title }}">
                         <img class="company-listing-image" src="{{ $service->imageUrl() }}" alt="" loading="lazy">
 
                         <div class="company-listing-content">
@@ -127,7 +129,7 @@
                                 <span><strong>JD {{ $service->price + 0 }}</strong> {{ $service->priceSuffix() }}</span>
                             </div>
                         </div>
-                    </article>
+                    </a>
                 @empty
                     <p class="muted">No services published yet.</p>
                 @endforelse
@@ -139,24 +141,7 @@
 
             <div class="company-listing-grid">
                 @forelse ($packages as $package)
-                    <article class="company-listing-card company-package-card">
-                        <div class="company-package-photo">
-                            <img class="company-listing-image" src="{{ $package->coverUrl() }}" alt="" loading="lazy">
-                            <span class="company-card-label">{{ $package->typeLabel() }}</span>
-                        </div>
-
-                        <div class="company-listing-content">
-                            <h3>{{ $package->name }}</h3>
-
-                            @if ($package->studio)
-                                <p class="muted">
-                                    <i class="bi bi-camera" aria-hidden="true"></i> {{ $package->studio->name }}
-                                </p>
-                            @endif
-
-                            <p class="company-package-price"><strong>JD {{ $package->price + 0 }}</strong></p>
-                        </div>
-                    </article>
+                    @include('customer.packages.card', ['package' => $package])
                 @empty
                     <p class="muted">No packages published yet.</p>
                 @endforelse
