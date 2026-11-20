@@ -168,13 +168,23 @@ class UserController extends Controller
     {
         $user = $this->activeUser();
 
+        $stats = [
+            'bookings' => $user->bookings()->count(),
+            'upcoming' => $user->bookings()
+                ->where('ends_at', '>', now())
+                ->whereNotIn('status', ['cancelled', 'expired'])
+                ->count(),
+            'favorites' => $user->favorites()->count(),
+            'reviews' => $user->bookings()->whereHas('review')->count(),
+        ];
+
         if ($user->role === 'admin') {
             return redirect()->route('users.index');
         }
 
         abort_unless(in_array($user->role, ['provider', 'customer'], true), 403);
 
-        return view('account.settings', compact('user'));
+        return view('account.settings', compact('user', 'stats'));
     }
 
     public function updateAccount(Request $request)

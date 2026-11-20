@@ -14,4 +14,7 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/account/password', [UserController::class, 'updateAccountPassword'])
         ->name('account.password.update');
+
+    Route::get('/profile', [UserController::class, 'account'])
+        ->name('profile.show');
 });
