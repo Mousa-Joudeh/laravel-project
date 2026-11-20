@@ -19,15 +19,15 @@ class ServiceController extends Controller
     public function index(Request $request): View
     {
         $filters = $request->validate([
-            'q' => 'sometimes|string|max:150',
-            'specialty' => 'sometimes|string|max:100',
+            'q' => 'sometimes|nullable|string|max:150',
+            'specialty' => 'sometimes|nullable|string|max:100',
             'kind' => 'sometimes|in:core,addon,both',
             'studio_id' => 'sometimes|integer|exists:studios,id',
             'per_page' => 'sometimes|integer|min:1|max:50',
         ]);
 
         $user = $request->user();
-        $query = Service::query();
+        $query = Service::query()->with('studio');
 
         if ($user?->role === 'provider') {
             $query->whereHas('studio', fn ($q) =>
@@ -57,13 +57,17 @@ class ServiceController extends Controller
         }
 
         $items = $query->latest('id')
-            ->paginate($filters['per_page'] ?? 12);
+            ->paginate($filters['per_page'] ?? 12)
+            ->withQueryString();
 
-        if ($user?->role !== 'admin' && $user?->role !== 'provider') {
-            $items->getCollection()->each(
-                fn ($item) => $item->makeHidden('admin_note')
-            );
-        }
+        $items->getCollection()->each(function (Service $service) use ($user) {
+            $service->setAttribute('image_url', $service->imageUrl());
+
+            if ($user?->role !== 'admin' && $user?->role !== 'provider') {
+                $service->makeHidden('admin_note');
+                $service->studio?->makeHidden('admin_note');
+            }
+        });
 
         return view('customer.services.index', ['services' => $items]);
     }
@@ -138,25 +142,22 @@ class ServiceController extends Controller
     public function show(Request $request, Service $service): View
     {
         $user = $request->user();
+        $isOwner = $user?->role === 'provider'
+            && (int) $service->studio?->provider_id === (int) $user->id;
 
-        if ($user?->role === 'admin') {
-            return view('customer.services.show', compact('service'));
+        if ($user?->role !== 'admin' && !$isOwner) {
+            $query = Service::whereKey($service->id);
+            $this->visibleToCustomers($query);
+            abort_unless($query->exists(), 404);
         }
 
-        if (
-            $user?->role === 'provider' &&
-            (int) $service->studio?->provider_id === (int) $user->id
-        ) {
-            return view('customer.services.show', compact('service'));
+        $service->load('studio.images');
+        $service->setAttribute('image_url', $service->imageUrl());
+
+        if ($user?->role !== 'admin' && !$isOwner) {
+            $service->makeHidden('admin_note');
+            $service->studio?->makeHidden('admin_note');
         }
-
-        $query = Service::whereKey($service->id);
-
-        $this->visibleToCustomers($query);
-
-        abort_unless($query->exists(), 404);
-
-        $service->makeHidden('admin_note');
 
         return view('customer.services.show', compact('service'));
     }
