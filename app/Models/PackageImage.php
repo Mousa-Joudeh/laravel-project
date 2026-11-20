@@ -28,4 +28,9 @@ class PackageImage extends Model
     {
         return $this->belongsTo(Package::class);
     }
+
+    public function url(): string
+    {
+        return asset('storage/' . ltrim($this->image_path, '/'));
+    }
 }

@@ -41,4 +41,14 @@ class Availability extends Model
     {
         return $this->belongsTo(Service::class);
     }
+
+    /** Human label for the resource this row applies to. */
+    public function targetLabel(): string
+    {
+        if ($this->service) {
+            return 'Service: ' . $this->service->title;
+        }
+
+        return 'Space: ' . ($this->studio?->name ?? '-');
+    }
 }

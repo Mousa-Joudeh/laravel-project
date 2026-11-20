@@ -45,4 +45,18 @@ class ProviderProfile extends Model
 
         return str_starts_with($this->logo, 'http') ? $this->logo : asset('storage/' . ltrim($this->logo, '/'));
     }
+
+    public function coverUrl(): ?string
+    {
+        if (! $this->cover) {
+            return null;
+        }
+
+        return str_starts_with($this->cover, 'http') ? $this->cover : asset('storage/' . ltrim($this->cover, '/'));
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
 }

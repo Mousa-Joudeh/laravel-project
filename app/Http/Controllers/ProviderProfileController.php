@@ -117,7 +117,7 @@ class ProviderProfileController extends Controller
     public function edit(ProviderProfile $providerProfile)
     {
         $user = $this->activeUser();
-        $this->ensureProfileAccess($user, $providerProfile);
+        $this->ensureProfileCanBeEdited($user, $providerProfile);
 
         $profile = $providerProfile;
 
@@ -127,23 +127,22 @@ class ProviderProfileController extends Controller
     public function update(Request $request, ProviderProfile $providerProfile)
     {
         $user = $this->activeUser();
-        $this->ensureProfileAccess($user, $providerProfile);
+        $this->ensureProfileCanBeEdited($user, $providerProfile);
 
         $validated = $request->validate($this->profileRules('sometimes|required'));
 
-        $profile = $this->saveWithImages($validated, function (array $data) use ($providerProfile) {
+        $profile = $this->saveWithImages($validated, function (array $data) use ($user, $providerProfile) {
+            $editor = User::lockForUpdate()->findOrFail($user->id);
+            abort_unless($editor->status === 'active', 403);
+
             $profile = ProviderProfile::lockForUpdate()
                 ->findOrFail($providerProfile->id);
+
+            $this->ensureProfileCanBeEdited($editor, $profile);
 
             $oldImages = $this->replacedImagePaths($profile, $data);
 
             $profile->fill($data);
-
-            if ($profile->isDirty() && $profile->status === 'rejected') {
-                $profile->status = 'pending';
-                $profile->admin_note = null;
-            }
-
             $profile->save();
 
             return [$profile, $oldImages];
@@ -193,7 +192,7 @@ class ProviderProfileController extends Controller
     public function destroy(ProviderProfile $providerProfile)
     {
         $user = $this->activeUser();
-        $this->ensureProfileAccess($user, $providerProfile);
+        abort_unless($user->role === 'admin', 403);
 
         DB::transaction(function () use ($providerProfile) {
             $owner = User::withTrashed()
@@ -210,9 +209,7 @@ class ProviderProfileController extends Controller
             }
         });
 
-        $route = $user->role === 'admin' ? 'provider-profiles.index' : 'account.show';
-
-        return redirect()->route($route)
+        return redirect()->route('provider-profiles.index')
             ->with('success', 'Provider profile deleted successfully!');
     }
 
@@ -303,6 +300,20 @@ class ProviderProfileController extends Controller
 
     private function ensureProfileAccess(User $user, ProviderProfile $profile): void
     {
-        abort_unless($user->role === 'admin' || (int) $profile->user_id === $user->id, 403);
+        abort_unless(
+            $user->role === 'admin' || (int) $profile->user_id === $user->id,
+            403
+        );
+    }
+
+    private function ensureProfileCanBeEdited(User $user, ProviderProfile $profile): void
+    {
+        $this->ensureProfileAccess($user, $profile);
+
+        abort_unless(
+            $user->role === 'admin'
+                || ($user->role === 'provider' && $profile->status === 'approved'),
+            403
+        );
     }
 }

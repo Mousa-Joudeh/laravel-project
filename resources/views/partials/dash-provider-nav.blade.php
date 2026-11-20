@@ -13,16 +13,16 @@
     };
 
     $catalogue = [
-        ['Service Management', 'bi-person-video2',  ['provider.services.index', 'services.index'], 'services.*'],
-        ['Space Management',   'bi-house-door',     ['provider.studios.index', 'studios.index'], 'studios.*'],
-        ['Package Management', 'bi-box2-heart',     ['provider.packages.index', 'packages.index'], 'packages.*'],
-        ['Opening hours',      'bi-clock-history',  ['provider.availabilities.index', 'availabilities.index'], 'availabilities.*'],
+        ['Service Management', 'bi-person-video2',  ['provider.services.index'], 'provider.services.*'],
+        ['Space Management',   'bi-house-door',     ['provider.studios.index'], 'provider.studios.*'],
+        ['Package Management', 'bi-box2-heart',     ['provider.packages.index'], 'provider.packages.*'],
+        ['Opening hours',      'bi-clock-history',  ['provider.availabilities.index'], 'provider.availabilities.*'],
     ];
     $account = [
-        ['Reviews & Ratings',  'bi-star',           ['provider.reviews.index', 'reviews.index'], 'reviews.*'],
+        ['Reviews & Ratings',  'bi-star',           ['provider.reviews.index'], 'provider.reviews.*'],
         ['Profile Management', 'bi-person-gear',    ['provider.profile.edit'],         'provider.profile.*'],
     ];
-    $bookingsRoute = $link(['provider.bookings.index', 'bookings.index']);
+    $bookingsRoute = $link(['provider.bookings.index']);
 @endphp
 
 @if ($profile)
@@ -45,7 +45,7 @@
     <a href="{{ route('provider.dashboard') }}" @class(['active' => request()->routeIs('provider.dashboard')])><i class="bi bi-grid-1x2"></i> Dashboard</a>
 
     @if ($bookingsRoute)
-        <a href="{{ route($bookingsRoute) }}" @class(['active' => request()->routeIs('bookings.*', 'provider.bookings.*')])>
+        <a href="{{ route($bookingsRoute) }}" @class(['active' => request()->routeIs('provider.bookings.*')])>
             <i class="bi bi-calendar2-check"></i> Booking Management
             @if ($todayCount) <span class="pill-count" title="Today">{{ $todayCount }}</span> @endif
         </a>
