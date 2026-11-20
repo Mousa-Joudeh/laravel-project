@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -50,7 +52,21 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone' => ['nullable', 'string', 'max:25'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'account_type' => ['sometimes', 'required', 'in:customer,studio_owner'],
+            'company_name' => [
+                'exclude_unless:account_type,studio_owner',
+                'required',
+                'string',
+                'max:150',
+            ],
+            'city' => [
+                'exclude_unless:account_type,studio_owner',
+                'required',
+                'string',
+                'max:100',
+            ],
         ]);
     }
 
@@ -61,10 +77,27 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+        return DB::transaction(function () use ($data) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'password' => Hash::make($data['password']),
+                'role' => 'customer',
+            ]);
+
+            if (($data['account_type'] ?? 'customer') === 'studio_owner') {
+                $slug = Str::slug($data['company_name']);
+
+                $user->providerProfile()->create([
+                    'company_name' => $data['company_name'],
+                    'slug' => Str::limit($slug ?: 'provider', 150, '') . '-' . $user->id,
+                    'city' => $data['city'],
+                    'status' => 'pending',
+                ]);
+            }
+
+            return $user;
+        });
     }
 }
