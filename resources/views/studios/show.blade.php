@@ -4,6 +4,7 @@
 
 @push('styles')
     <link href="{{ asset('css/studios.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/packages.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -209,7 +210,8 @@
                         <p class="note">You will log in first.</p>
                     @else
                         @if (Auth::user()->role === 'customer')
-                            <a href="{{ route('bookings.create', ['studio_id' => $studio->id]) }}" class="btn btn-primary btn-lg btn-block"><i class="bi bi-calendar2-plus"></i> Book now</a>
+                         <button type="button" class="btn btn-primary btn-lg btn-block" id="open-booking"><i class="bi bi-calendar2-plus"></i> Book now</button>
+                            @include('studios.booking-modal')
                         @else
                             <button type="button" class="btn btn-light btn-lg btn-block" disabled>Bookings are for customers</button>
                         @endif
@@ -222,4 +224,5 @@
 
 @push('scripts')
     <script src="{{ asset('js/studios.js') }}"></script>
-@endpush
+    <script src="{{ asset('js/booking-modal.js') }}"></script>
+    @endpush

@@ -209,4 +209,5 @@
 
 @push('scripts')
     <script src="{{ asset('js/packages.js') }}"></script>
+        <script src="{{ asset('js/booking-modal.js') }}"></script>
 @endpush
