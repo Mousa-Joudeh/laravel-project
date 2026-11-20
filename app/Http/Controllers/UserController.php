@@ -167,19 +167,80 @@ class UserController extends Controller
     public function account()
     {
         $user = $this->activeUser();
-        $role = $user->role;
 
-        if ($role === 'admin') {
+        if ($user->role === 'admin') {
             return redirect()->route('users.index');
-        } elseif ($role === 'provider') {
-            $user->load('providerProfile');
-
-            return view('provider.profile.show', compact('user'));
-        } elseif ($role === 'customer') {
-            return view('customer.profile.show', compact('user'));
         }
 
-        abort(403);
+        abort_unless(in_array($user->role, ['provider', 'customer'], true), 403);
+
+        return view('account.settings', compact('user'));
+    }
+
+    public function updateAccount(Request $request)
+    {
+        $user = $this->activeUser();
+
+        abort_unless(in_array($user->role, ['provider', 'customer'], true), 403);
+
+        $validated = $request->validateWithBag('account', [
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user),
+            ],
+            'phone' => 'nullable|string|max:25',
+            'city' => 'nullable|string|max:100',
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $avatar = $validated['avatar'] ?? null;
+        unset($validated['avatar']);
+
+        if ($avatar !== null) {
+            $avatarPath = $avatar->store('avatars', 'public');
+
+            if ($avatarPath === false) {
+                return back()
+                    ->withInput($validated)
+                    ->withErrors(['avatar' => 'Unable to save the profile photo.'], 'account');
+            }
+
+            $validated['avatar'] = $avatarPath;
+        }
+
+        $user->fill($validated);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return redirect('/account')
+            ->with('account_success', 'Account updated successfully!');
+    }
+
+    public function updateAccountPassword(Request $request)
+    {
+        $user = $this->activeUser();
+
+        abort_unless(in_array($user->role, ['provider', 'customer'], true), 403);
+
+        $validated = $request->validateWithBag('password', [
+            'current_password' => 'required|string|current_password',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user->password = $validated['password'];
+        $user->save();
+
+        $request->session()->regenerate();
+
+        return redirect('/account')
+            ->with('password_success', 'Password updated successfully!');
     }
 
     private function providerCustomers()
