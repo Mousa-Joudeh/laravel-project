@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Availability;
 use App\Models\Booking;
-use App\Models\Package;
+use App\Models\Studio;
 use Illuminate\Http\Request;
 
 
@@ -18,12 +18,12 @@ class PackageSlotController extends Controller
             'hours' => 'required|integer|min:1|max:12',
         ]);
 
-        $package = Package::findOrFail($id);
+        $studio = Studio::findOrFail($id);
         $hours = (int) $request->hours;
         $day = date('w', strtotime($request->date)); // 0 = Sunday ... 6 = Saturday
 
         
-        $openings = Availability::where('studio_id', $package->studio_id)
+        $openings = Availability::where('studio_id', $studio->id)
             ->where('type', 'weekly')
             ->where('day_of_week', $day)
             ->whereNull('service_id')
@@ -42,13 +42,13 @@ class PackageSlotController extends Controller
 
                 $isPast = $start <= time() + 3600;
 
-                $isBooked = Booking::where('studio_id', $package->studio_id)
+                $isBooked = Booking::where('studio_id', $studio->id)
                     ->whereIn('status', ['pending_payment', 'confirmed'])
                     ->where('starts_at', '<', $to)
                     ->where('ends_at', '>', $from)
                     ->exists();
 
-                $isBlocked = Availability::where('studio_id', $package->studio_id)
+                $isBlocked = Availability::where('studio_id', $studio->id)
                     ->where('type', 'blocked')
                     ->where('starts_at', '<', $to)
                     ->where('ends_at', '>', $from)

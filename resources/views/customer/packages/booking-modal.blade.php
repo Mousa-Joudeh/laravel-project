@@ -3,7 +3,7 @@
      data-max="{{ $package->max_hours }}"
      data-price="{{ $package->price }}"
      data-pricing="{{ $package->pricing_type }}"
-     data-slots-url="{{ route('packages.slots', $package->id) }}">
+          data-slots-url="{{ route('studios.slots', $package->studio_id) }}">
 
     <form action="{{ route('bookings.store') }}" method="POST" class="modal-box">
         @csrf
