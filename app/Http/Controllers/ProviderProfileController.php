@@ -17,6 +17,56 @@ class ProviderProfileController extends Controller
 {
     private const IMAGE_FIELDS = ['logo', 'cover'];
 
+    public function publicIndex(Request $request)
+    {
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $search = trim($validated['search'] ?? '');
+
+        $query = ProviderProfile::query()
+            ->where('status', 'approved')
+            ->whereHas('user', function ($user) {
+                $user->where('role', 'provider')
+                    ->where('status', 'active');
+            });
+
+        if ($search !== '') {
+            $query->where(function ($profiles) use ($search) {
+                $profiles->where('company_name', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%");
+            });
+        }
+
+        $profiles = $query
+            ->with(['user' => function ($user) {
+                $user->withCount([
+                    'studios' => function ($studios) {
+                        $studios->where('studios.status', 'approved')
+                            ->where('studios.is_active', true);
+                    },
+                    'services' => function ($services) {
+                        $services->where('services.status', 'approved')
+                            ->where('services.is_active', true)
+                            ->where('studios.status', 'approved')
+                            ->where('studios.is_active', true);
+                    },
+                    'packages' => function ($packages) {
+                        $packages->where('packages.is_active', true)
+                            ->where('studios.status', 'approved')
+                            ->where('studios.is_active', true);
+                    },
+                ]);
+            }])
+            ->orderBy('company_name')
+            ->orderBy('id')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('studio-companies.index', compact('profiles', 'search'));
+    }
+
     public function index()
     {
         $user = $this->activeUser();
