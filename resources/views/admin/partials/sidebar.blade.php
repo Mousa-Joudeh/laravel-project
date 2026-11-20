@@ -1,9 +1,9 @@
 <aside class="admin-sidebar" id="admin-sidebar">
-    <div class="admin-brand">
-        <span class="admin-brand-mark" aria-hidden="true"><span></span></span>
-        <span class="admin-brand-word">SPACE</span>
+    <a class="admin-brand" href="{{ route('admin.dashboard') }}" aria-label="SPACES Administration Dashboard">
+        @include('partials.logo')
+        <span class="admin-brand-word">SPACES</span>
         <span class="admin-brand-tag">ADMIN</span>
-    </div>
+    </a>
 
     <div class="admin-account">
         <span class="admin-account-avatar">{{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
@@ -19,6 +19,10 @@
             <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
         </a>
 
+        <a class="admin-nav-link {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}" href="{{ route('admin.analytics.index') }}">
+            <i class="bi bi-graph-up-arrow"></i><span>Analytics & Traffic</span>
+        </a>
+
         <span class="admin-nav-label">Management</span>
         <a
             href="{{ route('admin.users.index') }}"
@@ -27,14 +31,16 @@
             <i class="bi bi-people"></i>
             <span>Users</span>
         </a>
-        <span class="admin-nav-link disabled"><i class="bi bi-building"></i><span>Providers</span><small>soon</small></span>
-        <span class="admin-nav-link disabled"><i class="bi bi-camera"></i><span>Studios</span><small>soon</small></span>
-        <span class="admin-nav-link disabled"><i class="bi bi-layers"></i><span>Services & packages</span><small>soon</small></span>
-        <span class="admin-nav-link disabled"><i class="bi bi-calendar-check"></i><span>Bookings</span><small>soon</small></span>
-        <span class="admin-nav-link disabled"><i class="bi bi-star"></i><span>Reviews</span><small>soon</small></span>
+        <a class="admin-nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}"><i class="bi bi-tags"></i><span>Categories</span></a>
+        <a class="admin-nav-link {{ request()->routeIs('admin.partners.*') ? 'active' : '' }}" href="{{ route('admin.partners.index') }}"><i class="bi bi-buildings"></i><span>Partners</span></a>
+        <a class="admin-nav-link {{ request()->routeIs('admin.catalog.*') ? 'active' : '' }}" href="{{ route('admin.catalog.index') }}"><i class="bi bi-camera"></i><span>Studios & Services</span></a>
 
+        <span class="admin-nav-label">Operations</span>
+        <a href="{{ route('admin.operations.bookings') }}" class="admin-nav-link {{ request()->routeIs('admin.operations.bookings') ? 'active' : '' }}"><i class="bi bi-calendar-check"></i><span>Bookings</span></a>
+        <a href="{{ route('admin.operations.transactions') }}" class="admin-nav-link {{ request()->routeIs('admin.operations.transactions') ? 'active' : '' }}"><i class="bi bi-credit-card"></i><span>Transactions</span></a>
+        <a href="{{ route('admin.operations.reviews') }}" class="admin-nav-link {{ request()->routeIs('admin.operations.reviews*') ? 'active' : '' }}"><i class="bi bi-star"></i><span>Reviews</span></a>
         <span class="admin-nav-label">Moderation</span>
-        <span class="admin-nav-link disabled"><i class="bi bi-patch-check"></i><span>Approval requests</span><small>soon</small></span>
+        <a class="admin-nav-link {{ request()->routeIs('admin.approvals.*') ? 'active' : '' }}" href="{{ route('admin.approvals.index') }}"><i class="bi bi-patch-check"></i><span>Approval Requests</span></a>
     </nav>
 
     <div class="admin-sidebar-footer">

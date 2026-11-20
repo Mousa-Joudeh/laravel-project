@@ -56,39 +56,45 @@
 .admin-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 0 10px 24px;
+    gap: 9px;
+    padding: 0 9px 24px;
+    white-space: nowrap;
 }
 
-.admin-brand-mark {
-    width: 30px;
-    height: 30px;
-    display: grid;
-    place-items: center;
-    background: var(--admin-ink);
-    border-radius: 7px;
+.admin-brand .brand-mark {
+    width: 34px;
+    height: 34px;
+    flex: none;
 }
 
-.admin-brand-mark span {
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    border: 3px solid var(--admin-orange);
+.admin-brand .brand-mark .lens {
+    transform-origin: 16px 17px;
+    transition: transform .6s ease;
+}
+
+.admin-brand:hover .brand-mark .lens {
+    transform: rotate(120deg);
 }
 
 .admin-brand-word {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: -0.05em;
+    letter-spacing: .11em;
 }
 
 .admin-brand-tag {
-    border: 1px solid var(--admin-line);
-    border-radius: 4px;
-    padding: 2px 5px;
-    font: 9px var(--space-font-mono);
-    letter-spacing: 0.03em;
-    color: var(--admin-ink-2);
+    border-radius: 999px;
+    padding: 4px 9px;
+    background: #141413;
+    color: #fff;
+    font: 600 10px/1 var(--space-font);
+    letter-spacing: .06em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-brand .brand-mark .lens {
+        transition: none;
+    }
 }
 
 .admin-account {

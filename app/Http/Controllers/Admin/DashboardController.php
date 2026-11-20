@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\PageVisit;
 use App\Models\ProviderProfile;
+use App\Models\Package;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\Studio;
@@ -173,6 +174,7 @@ class DashboardController extends Controller
             ['label' => 'Partner profiles', 'count' => ProviderProfile::where('status', 'pending')->count(), 'icon' => 'person-check'],
             ['label' => 'Studios', 'count' => Studio::where('status', 'pending')->count(), 'icon' => 'camera-video'],
             ['label' => 'Services', 'count' => Service::where('status', 'pending')->count(), 'icon' => 'layers'],
+            ['label' => 'Packages', 'count' => Package::where('is_active', false)->count(), 'icon' => 'box-seam'],
         ];
         $pendingCount = array_sum(array_column($approvals, 'count'));
 
