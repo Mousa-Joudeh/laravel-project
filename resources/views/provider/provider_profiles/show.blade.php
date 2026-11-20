@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $viewer = auth()->user();
+        $isAdmin = $viewer->role === 'admin';
+        $canEdit = $isAdmin || (
+            $viewer->role === 'provider'
+            && (int) $profile->user_id === $viewer->id
+            && $profile->status === 'approved'
+        );
+    @endphp
+
     <div class="container py-4">
         @if (session('success'))
             <p class="alert alert-success">{{ session('success') }}</p>
@@ -25,7 +35,7 @@
             <p class="text-muted">{{ $profile->tagline }}</p>
         @endif
 
-        @if (auth()->user()->role === 'admin')
+        @if ($isAdmin)
             <p>Submitted by: {{ $profile->user?->name ?? '—' }}</p>
         @endif
 
@@ -48,25 +58,29 @@
             <p>Review note: {{ $profile->admin_note }}</p>
         @endif
 
-        <div class="d-flex flex-wrap gap-2 mb-3">
-            <a href="{{ route('provider-profiles.edit', $profile) }}"
-               class="btn btn-outline-primary">
-                Edit Profile
-            </a>
+        @if ($canEdit)
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a href="{{ route('provider-profiles.edit', $profile) }}"
+                   class="btn btn-outline-primary">
+                    Edit Profile
+                </a>
 
-            <form method="POST"
-                  action="{{ route('provider-profiles.destroy', $profile) }}"
-                  onsubmit="return confirm('Delete this provider profile?')">
-                @csrf
-                @method('DELETE')
+                @if ($isAdmin)
+                    <form method="POST"
+                          action="{{ route('provider-profiles.destroy', $profile) }}"
+                          onsubmit="return confirm('Delete this provider profile?')">
+                        @csrf
+                        @method('DELETE')
 
-                <button type="submit" class="btn btn-outline-danger">
-                    Delete Profile
-                </button>
-            </form>
-        </div>
+                        <button type="submit" class="btn btn-outline-danger">
+                            Delete Profile
+                        </button>
+                    </form>
+                @endif
+            </div>
+        @endif
 
-        @if (auth()->user()->role === 'admin' && $profile->status === 'pending')
+        @if ($isAdmin && $profile->status === 'pending')
             <form method="POST" action="{{ route('admin.provider-profiles.review', $profile) }}">
                 @csrf
                 @method('PATCH')
