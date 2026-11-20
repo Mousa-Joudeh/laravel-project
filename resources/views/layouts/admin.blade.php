@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/admin/global.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/ai-floating-chat.css') }}">
     @stack('styles')
 </head>
 <body class="admin-body">
@@ -27,8 +28,10 @@
     </div>
 </div>
 @include('admin.partials.header-panels')
+@include('admin.partials.ai-floating-chat')
 <script src="{{ asset('js/admin.js') }}" defer></script>
 <script src="{{ asset('js/admin/header.js') }}" defer></script>
+<script src="{{ asset('js/admin/ai-floating-chat.js') }}" defer></script>
 @stack('scripts')
 </body>
 </html>
