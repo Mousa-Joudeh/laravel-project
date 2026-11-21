@@ -129,3 +129,14 @@
     .equip-list, .reviews { grid-template-columns: 1fr; }
     .gallery-main { height: 240px; }
 }
+/* ---------- add-ons on the space page ---------- */
+.addons-note { font-size: 13px; margin: -4px 0 12px; }
+.addon-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.addon:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.card-addons { margin-top: -14px; border-top: 0; }
+.card-addons[hidden] { display: none; }
+.card-addons b { color: var(--accent); font-weight: 600; }
+
+@media (max-width: 640px) {
+    .addon-list { grid-template-columns: 1fr; }
+}
