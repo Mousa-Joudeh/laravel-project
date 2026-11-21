@@ -15,10 +15,10 @@ class AdminAiScope
         'overview' => '/insights?|recommendations?|overview|summary|dashboard|performance|report|trends?|space|platform|how.*doing|نصيح|توصي|اقتراح|ملخص|تقرير|أداء|اداء|منصة|المنصة|المشروع|الوضع|مؤشرات|تحليل/u',
     ];
 
-    public function topic(string $question): ?string
+    public function topic(string $question, int $maxLength = 450): ?string
     {
         $text = mb_strtolower(trim($question));
-        if ($text === '' || mb_strlen($text) > 450) {
+        if ($text === '' || mb_strlen($text) > $maxLength) {
             return null;
         }
 

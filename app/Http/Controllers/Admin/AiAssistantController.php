@@ -60,7 +60,7 @@ POLICY;
 
         try {
             $answer = $gemini->generate(self::RULES, $metrics->promptFacts($snapshot), $question);
-            if ($scope->topic($answer) === null || preg_match('~(?:https?://|www\.)~i', $answer)) {
+            if ($scope->topic($answer, 3000) === null || preg_match('~(?:https?://|www\.)~i', $answer)) {
                 return response()->json([
                     'answer' => $localAnswer,
                     'source' => 'verified_metrics',
