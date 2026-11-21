@@ -43,9 +43,9 @@
 .link-more:hover { border-color: var(--ink); }
 
 /* ---------- booking window ---------- */
-.modal { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(20, 20, 19, .48); }
+.modal { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: calc(var(--nav-h) + 20px) 20px 20px; background: rgba(20, 20, 19, .48); }
 .modal.open { display: flex; }
-.modal-box { width: 100%; max-width: 520px; max-height: calc(100vh - 40px); display: flex; flex-direction: column; background: #fff; border-radius: 22px; box-shadow: var(--shadow-lg); overflow: hidden; animation: pop-in .35s; }
+.modal-box { width: 100%; max-width: 520px; max-height: calc(100vh - var(--nav-h) - 40px); display: flex; flex-direction: column; background: #fff; border-radius: 22px; box-shadow: var(--shadow-lg); overflow: hidden; animation: pop-in .35s; }
 @keyframes pop-in { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 22px 12px; border-bottom: 1px solid var(--line); }
 .modal-head h3 { font-size: 17px; margin-top: 4px; }
