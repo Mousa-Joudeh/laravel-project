@@ -46,3 +46,21 @@ document.querySelectorAll('.thumb').forEach(function (thumb) {
         thumb.classList.add('on');
     });
 });
+// ---------- details page: add-ons change the price in the book card ----------
+const bookCard = document.getElementById('book-card');
+if (bookCard) {
+    const basePrice = parseFloat(bookCard.dataset.base);
+
+    document.querySelectorAll('.addon-check').forEach(function (check) {
+        check.addEventListener('change', function () {
+            let addonsPrice = 0;
+            document.querySelectorAll('.addon-check:checked').forEach(function (checked) {
+                addonsPrice += parseFloat(checked.dataset.price);
+            });
+
+            document.getElementById('card-addons').hidden = addonsPrice === 0;
+            document.getElementById('card-addons-price').textContent = '+ JD ' + addonsPrice;
+            document.getElementById('card-total').textContent = 'JD ' + (basePrice + addonsPrice);
+        });
+    });
+}

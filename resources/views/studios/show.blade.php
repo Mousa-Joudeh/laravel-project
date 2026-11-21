@@ -98,6 +98,22 @@
                         <p class="muted">This is an empty space: bring your own equipment.</p>
                     @endif
                 </section>
+                                {{-- ========== add-ons ========== --}}
+                @if ($addons->count() > 0)
+                    <section class="detail-section">
+                        <h3>Add-ons</h3>
+                        <p class="muted addons-note">Add any of these to your booking. The price is added to your total.</p>
+                        <div class="addon-list">
+                            @foreach ($addons as $addon)
+                                <label class="addon">
+                                    <input type="checkbox" class="addon-check" name="addons[]" value="{{ $addon->id }}" form="booking-form" data-price="{{ $addon->price }}" data-pricing="{{ $addon->pricing_type }}">
+                                    <span class="addon-name">{{ $addon->title }}</span>
+                                    <span class="price">JD {{ number_format($addon->price, 0) }} <small>{{ $addon->pricing_type === 'hourly' ? '/ hour' : 'fixed' }}</small></span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
 
                 
                 @if (!empty($studio->facilities))
@@ -197,14 +213,17 @@
 
             
             <aside>
-                <div class="book-card">
+                   <div class="book-card" id="book-card" data-base="{{ $studio->hourly_price }}">
                     <div class="price-big">JD {{ number_format($studio->hourly_price, 0) }} <small>/ hour</small></div>
                     <div class="facts">
                         <div><span>Capacity</span><b>Up to {{ $studio->capacity }} people</b></div>
                         <div><span>City</span><b>{{ $studio->city }}</b></div>
                         <div><span>Category</span><b>{{ $studio->category->name }}</b></div>
                     </div>
-
+                    <div class="facts card-addons" id="card-addons" hidden>
+                        <div><span>Add-ons</span><b id="card-addons-price">+ JD 0</b></div>
+                        <div><span>Total for 1 hour</span><b id="card-total">JD {{ number_format($studio->hourly_price, 0) }}</b></div>
+                    </div>
                     @guest
                         <a href="{{ route('login') }}" class="btn btn-primary btn-lg btn-block"><i class="bi bi-calendar2-plus"></i> Book now</a>
                         <p class="note">You will log in first.</p>

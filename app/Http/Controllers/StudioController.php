@@ -8,7 +8,7 @@ use App\Models\StudioType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-
+use App\Models\Service;
 class StudioController extends Controller
 {
     
@@ -147,8 +147,13 @@ class StudioController extends Controller
         $reviews = $studio->reviews->sortByDesc('created_at');
         $rating = round($reviews->avg('rating'), 1);
         $reviewsTotal = $reviews->count();
-
-        return view('studios.show', compact('studio', 'reviews', 'rating', 'reviewsTotal'));
+        $providerStudioIds = Studio::where('provider_id', $studio->provider_id)->pluck('id');
+        $addons = Service::whereIn('studio_id', $providerStudioIds)
+            ->where('is_active', true)
+            ->where('status', 'approved')
+            ->whereIn('kind', ['addon', 'both'])
+            ->get();
+         return view('studios.show', compact('studio', 'reviews', 'rating', 'reviewsTotal', 'addons'));
     }
 
    

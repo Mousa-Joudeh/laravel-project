@@ -5,7 +5,7 @@
      data-pricing="hourly"
      data-slots-url="{{ route('studios.slots', $studio->id) }}">
 
-    <form action="{{ route('bookings.store') }}" method="POST" class="modal-box">
+        <form action="{{ route('bookings.store') }}" method="POST" class="modal-box" id="booking-form">
         @csrf
         <input type="hidden" name="studio_id" value="{{ $studio->id }}">
         <input type="hidden" name="mode" value="space">
