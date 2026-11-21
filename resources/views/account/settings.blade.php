@@ -174,7 +174,15 @@
 
         @media (max-width: 640px) {
             .account-profile-header {
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: 96px minmax(0, 1fr);
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .account-profile-header > .btn {
+                grid-column: 1 / -1;
+                justify-self: start;
             }
 
             .account-profile-stats {
