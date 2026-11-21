@@ -9,24 +9,21 @@
 @section('content')
 
     
-    <div class="filmstrip">
-        <span class="film-edge">SPACES 400 ▸ 24 ▸ SAFETY FILM</span>
-        <div class="filmstrip-track">
-            @foreach ($topSpaces as $studio)
-                <div class="film-frame" data-n="{{ $loop->iteration * 3 }}A">
-                    <img src="{{ $studio->cover_url }}" alt="">
-                </div>
-            @endforeach
-            @foreach ($topPackages as $package)
-                <div class="film-frame" data-n="{{ ($loop->iteration + 5) * 3 }}A">
-                    <img src="{{ $package->cover_url }}" alt="">
-                </div>
-            @endforeach
-        </div>
-    </div>
+    
 
     
     <section class="hero">
+                {{-- film ribbon that curves behind the hero text --}}
+        <div class="film-ribbon" aria-hidden="true">
+            @for ($round = 1; $round <= 3; $round++)
+                @foreach ($topSpaces as $studio)
+                    <div class="ribbon-frame"><img src="{{ $studio->cover_url }}" alt=""></div>
+                @endforeach
+                @foreach ($topPackages as $package)
+                    <div class="ribbon-frame"><img src="{{ $package->cover_url }}" alt=""></div>
+                @endforeach
+            @endfor
+        </div>
         <div class="container hero-grid">
             <div>
                 <span class="pill reveal">

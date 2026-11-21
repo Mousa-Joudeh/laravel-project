@@ -1,5 +1,4 @@
-// tell the layout that this page has the film strip (adds space on the left)
-document.body.classList.add('has-film');
+
 
 // ---------- hero photos: change every 5 seconds with a camera flash ----------
 const heroImages = document.querySelectorAll('#hero-frame img');
@@ -31,21 +30,11 @@ setInterval(function () {
     showPhoto((current + 1) % heroImages.length);
 }, 5200);
 
-// ---------- film strip: moves slowly and follows the scroll ----------
-const film = document.querySelector('.filmstrip-track');
-if (film) {
-    film.innerHTML += film.innerHTML; // twice, so it loops
-    let offset = 0;
-
-    function moveFilm() {
-        offset += 0.2;
-        const half = film.scrollHeight / 2;
-        film.style.transform = 'translateY(-' + ((offset + window.scrollY * 0.35) % half) + 'px)';
-        requestAnimationFrame(moveFilm);
-    }
-    moveFilm();
-}
-
+// ---------- film ribbon: each frame starts at a different place on the curve ----------
+const ribbonFrames = document.querySelectorAll('.ribbon-frame');
+ribbonFrames.forEach(function (frame, i) {
+    frame.style.animationDelay = '-' + (i * 50 / ribbonFrames.length) + 's';
+});
 
 const observer = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
