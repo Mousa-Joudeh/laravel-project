@@ -28,11 +28,11 @@ class LoginController extends Controller
      */
     protected function redirectTo(): string
     {
-        if (Auth::user()?->role === 'customer') {
-            return route('landing');
-        }
-
-        return '/home';
+        return match (Auth::user()?->role) {
+            'admin' => route('admin.dashboard'),
+            'provider' => route('provider.dashboard'),
+            default => route('landing'),
+        };
     }
 
     /**
