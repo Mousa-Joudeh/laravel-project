@@ -140,3 +140,5 @@
 @media (max-width: 640px) {
     .addon-list { grid-template-columns: 1fr; }
 }
+/* the book card follows the page while scrolling */
+.detail-grid > aside { align-self: stretch; }
