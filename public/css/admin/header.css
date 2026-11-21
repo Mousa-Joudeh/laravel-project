@@ -144,6 +144,13 @@ html, body.admin-body, body.admin-body * {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
 }
+
+.admin-body a.admin-head-primary-link,
+.admin-body a.admin-head-primary-link:visited,
+.admin-body a.admin-head-primary-link:hover,
+.admin-body a.admin-head-primary-link:focus-visible {
+    color: #fff;
+}
 html::-webkit-scrollbar,
 body.admin-body::-webkit-scrollbar,
 body.admin-body *::-webkit-scrollbar {

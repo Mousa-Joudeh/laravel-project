@@ -123,3 +123,10 @@
 @media(max-width:650px){.dash-header{align-items:flex-start}.dash-header h1{font-size:23px}.dash-period-form{width:100%;justify-content:space-between}.dash-kpi-grid{gap:9px}.dash-kpi{min-height:143px}.dash-kpi strong{font-size:21px}.dash-kpi-head{font-size:10px}.dash-secondary-grid{grid-template-columns:1fr}.dash-chart-tabs button{padding:7px 8px}.dash-chart-container{height:185px}.dash-table-toolbar{padding:5px 12px 13px}.dash-table-search{min-width:100%}.dash-table-toolbar select{flex:1}.dash-donut-wrap{width:160px;height:160px}.dash-status-legend{grid-template-columns:1fr}.dash-snapshot-grid{gap:6px;padding:10px}.dash-snapshot-grid>div{padding:12px 5px}.dash-snapshot-grid strong{font-size:18px}.dash-snapshot-grid span{font-size:9px}}
 @media(max-width:420px){.dash-kpi-grid{grid-template-columns:1fr 1fr}.dash-kpi{padding:13px 11px;min-height:140px}.dash-kpi strong{font-size:18px}.dash-kpi-foot{gap:5px}.dash-kpi-foot>span:last-child{font-size:9px}.dash-chart-summary strong{font-size:15px}.dash-quick-access a{min-height:33px;font-size:10.5px}}
 @media(prefers-reduced-motion:reduce){.dash-quick-access a,.dash-chart-tabs button{transition:none}}
+
+#dash-period {
+    appearance: menulist;
+    -webkit-appearance: menulist;
+    padding-right: 12px;
+    cursor: pointer;
+}
