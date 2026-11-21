@@ -31,6 +31,7 @@
                 @endif
 
                 <a href="{{ route('studios.index') }}" class="{{ request()->routeIs('studios.*') ? 'active' : '' }}">Spaces</a>
+                <a href="{{ route('packages.index') }}" class="{{ request()->routeIs('packages.*') ? 'active' : '' }}">Packages</a>
                 <a href="{{ route('my-bookings.index') }}" class="{{ request()->routeIs('my-bookings.*') ? 'active' : '' }}">My Bookings</a>
             </nav>
 
@@ -96,8 +97,10 @@
         <a href="{{ url('/') }}">Home</a>
         @if (Route::has('studio-companies.index'))
             <a href="{{ route('studio-companies.index') }}">Studios</a>
+            
         @endif
         <a href="{{ route('studios.index') }}">Spaces</a>
+        <a href="{{ route('packages.index') }}">Packages</a>
         <a href="{{ route('my-bookings.index') }}">My Bookings</a>
         @guest
             <a href="{{ route('login') }}">Login</a>
