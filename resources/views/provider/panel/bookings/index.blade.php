@@ -6,7 +6,7 @@
     <div class="dash-head">
         <div>
             <h1>Bookings</h1>
-            <p>Track every session at your spaces. Mark a confirmed session as completed after it happens.</p>
+            <p>Confirm new bookings, then mark them completed after the session. You can cancel a booking at any time before that.</p>
         </div>
     </div>
 
@@ -54,6 +54,20 @@
                             <td><x-status :value="$booking->status" /></td>
                             <td>
                                 <div class="table-actions">
+                                    @if ($booking->status === 'pending_payment')
+                                        <form method="POST" action="{{ route('provider.bookings.update', $booking) }}" data-confirm="Confirm booking {{ $booking->reference }}?">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="confirmed">
+                                            <button class="icon-btn" title="Confirm booking"><i class="bi bi-check2-circle"></i></button>
+                                        </form>
+                                        <form method="POST" action="{{ route('provider.bookings.update', $booking) }}" data-confirm="Cancel booking {{ $booking->reference }}?">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <button class="icon-btn danger" title="Cancel booking"><i class="bi bi-x-circle"></i></button>
+                                        </form>
+                                    @endif
                                     @if ($booking->status === 'confirmed')
                                         <form method="POST" action="{{ route('provider.bookings.update', $booking) }}" data-confirm="Mark {{ $booking->reference }} as completed?">
                                             @csrf

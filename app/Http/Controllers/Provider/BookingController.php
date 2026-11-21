@@ -51,17 +51,30 @@ class BookingController extends Controller
         return view('provider.panel.bookings.show', compact('booking'));
     }
 
+    /** Allowed status changes: current status => statuses the provider may move it to. */
+    private const TRANSITIONS = [
+        'pending_payment' => ['confirmed', 'cancelled'],
+        'confirmed'       => ['completed', 'cancelled'],
+    ];
+
     public function update(Request $request, Booking $booking)
     {
         $this->authorizeBooking($booking);
 
-        $data = $request->validate(['status' => 'required|in:completed,cancelled']);
+        $data = $request->validate(['status' => 'required|in:confirmed,completed,cancelled']);
 
-        if ($booking->status !== 'confirmed') {
-            return back()->withErrors(['status' => 'Only confirmed bookings can be changed.']);
+        if (! in_array($data['status'], self::TRANSITIONS[$booking->status] ?? [], true)) {
+            return back()->withErrors([
+                'status' => 'This booking is ' . str_replace('_', ' ', $booking->status) . ' and cannot be changed to ' . $data['status'] . '.',
+            ]);
         }
 
         $booking->status = $data['status'];
+
+        if ($data['status'] === 'confirmed') {
+            // The provider accepted it, so the payment countdown no longer applies.
+            $booking->payment_expires_at = null;
+        }
 
         if ($data['status'] === 'cancelled') {
             $booking->cancelled_at = now();
@@ -69,7 +82,7 @@ class BookingController extends Controller
 
         $booking->save();
 
-        return back()->with('status', 'Booking ' . $booking->reference . ' marked as ' . $data['status'] . '.');
+        return back()->with('status', 'Booking ' . $booking->reference . ' is now ' . $data['status'] . '.');
     }
 
     private function authorizeBooking(Booking $booking): void
