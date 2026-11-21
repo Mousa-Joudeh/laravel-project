@@ -1,5 +1,7 @@
 # SPACES
 
+**Orange Coding Academy Capstone — Option 1: Bookify – Online Booking Platform**
+
 A Laravel-based marketplace for discovering and booking photography studios, creative services, and session packages in Jordan.
 
 Built as an Orange Coding Academy team project.
@@ -16,16 +18,16 @@ This README documents the uploaded project source. The presence of a route or sc
 
 ## Technology
 
-| Area | Technology |
-| --- | --- |
-| Backend | PHP 8.2+, Laravel 12 |
-| Templates | Laravel Blade |
-| Frontend | JavaScript, CSS, Bootstrap-related dependencies, Tailwind-related dependencies |
-| Asset tooling | Vite 7 |
-| Database | MySQL for the team's local setup |
-| Authentication | Laravel UI and Laravel Socialite for Google sign-in |
-| AI | Gemini API through Laravel's HTTP client |
-| Testing | PHPUnit 11 |
+| Area           | Technology                                                                     |
+| -------------- | ------------------------------------------------------------------------------ |
+| Backend        | PHP 8.2+, Laravel 12                                                           |
+| Templates      | Laravel Blade                                                                  |
+| Frontend       | JavaScript, CSS, Bootstrap-related dependencies, Tailwind-related dependencies |
+| Asset tooling  | Vite 7                                                                         |
+| Database       | MySQL for the team's local setup                                               |
+| Authentication | Laravel UI and Laravel Socialite for Google sign-in                            |
+| AI             | Gemini API through Laravel's HTTP client                                       |
+| Testing        | PHPUnit 11                                                                     |
 
 Some interfaces use assets directly from `public/css` and `public/js`; others may rely on compiled assets. Keep both asset paths in mind when troubleshooting styling or scripts.
 
@@ -161,15 +163,15 @@ npm run build
 
 ## Access and important URLs
 
-| Screen | URL path | Access |
-| --- | --- | --- |
-| Home | `/` | Public |
-| Login | `/login` | Guest authentication flow |
-| Register | `/register` | Guest registration flow |
-| Studio catalog | `/studios` | Subject to controller rules |
-| Package catalog | `/packages` | Public listing routes |
+| Screen             | URL path              | Access                         |
+| ------------------ | --------------------- | ------------------------------ |
+| Home               | `/`                   | Public                         |
+| Login              | `/login`              | Guest authentication flow      |
+| Register           | `/register`           | Guest registration flow        |
+| Studio catalog     | `/studios`            | Subject to controller rules    |
+| Package catalog    | `/packages`           | Public listing routes          |
 | Provider dashboard | `/provider/dashboard` | Authenticated, active provider |
-| Admin dashboard | `/admin` | Authenticated, active admin |
+| Admin dashboard    | `/admin`              | Authenticated, active admin    |
 
 The provider entry point is `/provider/dashboard`, not `/provider`.
 
@@ -352,18 +354,18 @@ This README was prepared from source inspection; the complete application and au
 
 ## Troubleshooting
 
-| Symptom | Check |
-| --- | --- |
-| `403` on a dashboard | Signed-in account's role and active status |
-| `404` at `/provider` | Open `/provider/dashboard` instead |
-| Missing Blade view | Controller view name, file path, and feature implementation |
-| Missing CSS or JavaScript | Browser network panel, public assets, and Vite/build output |
-| Uploaded images not visible | Public storage link, disk configuration, and stored path |
-| Database connection error | MySQL service and private `.env` configuration |
-| Gemini configuration missing | Key presence and non-empty model, then clear config cache |
-| AI request fails | Server logs, quota, model access, and network connectivity |
+| Symptom                              | Check                                                       |
+| ------------------------------------ | ----------------------------------------------------------- |
+| `403` on a dashboard                 | Signed-in account's role and active status                  |
+| `404` at `/provider`                 | Open `/provider/dashboard` instead                          |
+| Missing Blade view                   | Controller view name, file path, and feature implementation |
+| Missing CSS or JavaScript            | Browser network panel, public assets, and Vite/build output |
+| Uploaded images not visible          | Public storage link, disk configuration, and stored path    |
+| Database connection error            | MySQL service and private `.env` configuration              |
+| Gemini configuration missing         | Key presence and non-empty model, then clear config cache   |
+| AI request fails                     | Server logs, quota, model access, and network connectivity  |
 | `Auth::routes()` requires Laravel UI | Run `composer install` using the committed dependency files |
-| `gh` is not recognized | Use GitHub's web interface or install GitHub CLI separately |
+| `gh` is not recognized               | Use GitHub's web interface or install GitHub CLI separately |
 
 Review logs privately in `storage/logs`. Never share unredacted environment files, tokens, or logs containing credentials.
 
@@ -373,3 +375,8 @@ Configure the hosting environment separately, use HTTPS, disable debug output, k
 
 Local testing does not establish production readiness or successful live payment processing.
 
+## Design documentation
+
+- [Database ERD](documentation/space.png)
+- [Wireframes](documentation/SPACES-Wireframes.pdf)
+- [Reference mockups](documentation/SPACES-Mockups.pdf)
