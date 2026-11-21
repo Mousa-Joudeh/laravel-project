@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class HomeController extends Controller
 {
     /**
@@ -17,9 +15,9 @@ class HomeController extends Controller
     }
 
     /**
-     * Show the application dashboard.
+     * Redirect the legacy home route to the landing page.
      *
-     * @return \Illuminate\Contracts\Support\Renderable
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function index()
     {
