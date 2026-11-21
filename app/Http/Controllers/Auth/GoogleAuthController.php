@@ -86,6 +86,8 @@ class GoogleAuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        $destination = $user->role === 'customer' ? 'landing' : 'home';
+
+        return redirect()->intended(route($destination));
     }
 }
