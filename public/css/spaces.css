@@ -1083,3 +1083,15 @@ body.dash-body { background: var(--soft); }
     .kv { grid-template-columns: 1fr; gap: 2px; }
     .kv dd { margin-bottom: 8px; }
 }
+
+/* ---------- confirmation toast (replaces the browser confirm popup) ---------- */
+.toast-wrap { top: calc(var(--nav-h, 0px) + 16px); }
+.toast.confirm { flex-wrap: wrap; align-items: flex-start; max-width: 360px; padding: 14px 16px; background: #fff; color: var(--ink); border: 1px solid var(--line, #e6e3de); }
+.toast.confirm > i { margin-top: 2px; }
+.toast.confirm .msg { flex: 1; min-width: 0; line-height: 1.45; font-weight: 500; }
+.toast.confirm.danger > i { color: var(--bad); }
+.toast.confirm .toast-actions { display: flex; gap: 8px; justify-content: flex-end; width: 100%; margin-top: 4px; }
+.toast.confirm .toast-actions button { margin: 0; opacity: 1; height: 32px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.toast.confirm .toast-no { background: var(--bg-soft, #f4f2ee); color: var(--ink); border: 1px solid var(--line, #e6e3de); }
+.toast.confirm .toast-yes { background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.toast.confirm.danger .toast-yes { background: var(--bad); border-color: var(--bad); }

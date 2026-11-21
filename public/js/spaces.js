@@ -184,9 +184,69 @@
     });
 
     /* ---------- confirm before destructive actions ---------- */
+    // Shows a toast with Cancel / Confirm buttons instead of the browser's popup.
+    const toastWrap = () => {
+        let wrap = $('.toast-wrap');
+        if (!wrap) {
+            wrap = document.createElement('div');
+            wrap.className = 'toast-wrap';
+            wrap.setAttribute('role', 'status');
+            document.body.appendChild(wrap);
+        }
+        return wrap;
+    };
+
+    const toastConfirm = (message, danger) => new Promise((resolve) => {
+        const t = document.createElement('div');
+        t.className = 'toast confirm' + (danger ? ' danger' : '');
+        t.setAttribute('role', 'alertdialog');
+
+        const icon = document.createElement('i');
+        icon.className = 'bi ' + (danger ? 'bi-exclamation-triangle' : 'bi-question-circle');
+        const text = document.createElement('span');
+        text.className = 'msg';
+        text.textContent = message;
+        const actions = document.createElement('div');
+        actions.className = 'toast-actions';
+        const no = document.createElement('button');
+        no.type = 'button';
+        no.className = 'toast-no';
+        no.textContent = 'Cancel';
+        const yes = document.createElement('button');
+        yes.type = 'button';
+        yes.className = 'toast-yes';
+        yes.textContent = 'Confirm';
+        actions.append(no, yes);
+        t.append(icon, text, actions);
+
+        const done = (answer) => {
+            document.removeEventListener('keydown', onKey);
+            t.classList.add('hide');
+            setTimeout(() => t.remove(), 350);
+            resolve(answer);
+        };
+        const onKey = (ev) => { if (ev.key === 'Escape') done(false); };
+        no.addEventListener('click', () => done(false));
+        yes.addEventListener('click', () => done(true));
+        document.addEventListener('keydown', onKey);
+
+        toastWrap().appendChild(t);
+        yes.focus();
+    });
+
     document.addEventListener('submit', (e) => {
         const form = e.target;
-        if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) e.preventDefault();
+        if (!form.dataset.confirm || form.dataset.confirmed === '1') return;
+
+        e.preventDefault();
+        const submitter = e.submitter;
+        const danger = !!form.querySelector('input[name="_method"][value="DELETE"], input[name="status"][value="cancelled"]');
+
+        toastConfirm(form.dataset.confirm, danger).then((ok) => {
+            if (!ok) return;
+            form.dataset.confirmed = '1';
+            form.requestSubmit ? form.requestSubmit(submitter) : form.submit();
+        });
     }, true);
 
     /* ---------- modals ---------- */
@@ -402,42 +462,23 @@
 
             btn.classList.add('loading');
             btn.disabled = true;
-           try {
-    const res = await fetch(btn.dataset.url, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': csrf(),
-            Accept: 'application/json',
-        },
-        body,
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-        throw new Error(
-            data.message || 'Could not generate the description. Please try again.'
-        );
-    }
-
-    if (typeof data.text !== 'string' || !data.text.trim()) {
-        throw new Error('AI returned an empty description. Please try again.');
-    }
-
-    // Replace the description only after a successful response.
-    target.value = data.text.trim();
-    target.dispatchEvent(new Event('input', { bubbles: true }));
-} catch (err) {
-    // Keep the existing description when the request fails.
-    alert(
-        err instanceof Error
-            ? err.message
-            : 'The AI writer is not available right now.'
-    );
-} finally {
-    btn.classList.remove('loading');
-    btn.disabled = false;
-}
+            try {
+                const res = await fetch(btn.dataset.url, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf(), Accept: 'application/json' }, body });
+                const data = await res.json();
+                target.value = '';
+                const text = data.text || '';
+                let k = 0;
+                const type = () => {
+                    target.value = text.slice(0, k += 3);
+                    if (k < text.length) requestAnimationFrame(type);
+                };
+                type();
+            } catch (err) {
+                alert('The AI writer is not available right now.');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
         });
     });
 
