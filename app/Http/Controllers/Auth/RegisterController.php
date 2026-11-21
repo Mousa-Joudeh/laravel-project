@@ -27,10 +27,11 @@ class RegisterController extends Controller
 
     /**
      * Where to redirect users after registration.
-     *
-     * @var string
      */
-    protected $redirectTo = '/home';
+    protected function redirectTo(): string
+    {
+        return route('landing');
+    }
 
     /**
      * Create a new controller instance.
