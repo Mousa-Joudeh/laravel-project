@@ -136,7 +136,7 @@ class BookingController extends Controller
 
         if ($addonIds) {
             $addons = Service::whereIn('id', $addonIds)
-                ->where('studio_id', $studio->id)
+                ->whereIn('studio_id', Studio::where('provider_id', $studio->provider_id)->pluck('id'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereIn('kind', ['addon', 'both'])

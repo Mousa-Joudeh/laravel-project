@@ -147,7 +147,8 @@ class StudioController extends Controller
         $reviews = $studio->reviews->sortByDesc('created_at');
         $rating = round($reviews->avg('rating'), 1);
         $reviewsTotal = $reviews->count();
-        $addons = Service::where('studio_id', $studio->id)
+        $providerStudioIds = Studio::where('provider_id', $studio->provider_id)->pluck('id');
+        $addons = Service::whereIn('studio_id', $providerStudioIds)
             ->where('is_active', true)
             ->where('status', 'approved')
             ->whereIn('kind', ['addon', 'both'])
