@@ -62,8 +62,8 @@
                         </div>
 
                         @if (Auth::user()->role === 'customer')
-                            @if (Route::has('account.show'))
-                                <a href="{{ route('account.show') }}"><i class="bi bi-person"></i> My Profile</a>
+                            @if (Route::has('profile.show'))
+                                <a href="{{ route('profile.show') }}"><i class="bi bi-person"></i> My Profile</a>
                             @endif
                             @if (Route::has('favorites.index'))
                                 <a href="{{ route('favorites.index') }}"><i class="bi bi-heart"></i> Favorites</a>

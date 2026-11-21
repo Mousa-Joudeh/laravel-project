@@ -229,7 +229,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect('/account')
+        return redirect()->route('profile.show')
             ->with('account_success', 'Account updated successfully!');
     }
 
@@ -249,7 +249,7 @@ class UserController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect('/account')
+        return redirect()->route('profile.show')
             ->with('password_success', 'Password updated successfully!');
     }
 
