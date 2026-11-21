@@ -36,7 +36,7 @@
                 <form action="{{ route('studios.index') }}" method="GET" id="filters-form">
                     <input type="hidden" name="q" value="{{ request('q') }}">
 
-                    <div class="filter-group">
+                    <div class="filter-group" id="studio-types">
                         <h6>Studio type</h6>
                         <label class="check">
                             <input type="radio" name="type" value="" {{ request('type') ? '' : 'checked' }}> All types
