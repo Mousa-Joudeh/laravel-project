@@ -75,4 +75,10 @@ class Booking extends Model
     {
         return round($this->starts_at->diffInMinutes($this->ends_at) / 60, 1);
     }
+
+    /** Only the add-on lines of this booking. */
+    public function addons(): HasMany
+    {
+        return $this->hasMany(BookingItem::class)->where('item_type', 'addon');
+    }
 }

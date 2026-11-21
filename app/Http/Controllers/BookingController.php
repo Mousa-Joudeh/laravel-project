@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Service;
 use App\Models\Studio;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
@@ -83,7 +87,11 @@ class BookingController extends Controller
             'mode' => 'required|in:space,service,package,custom',
             'starts_at' => 'required|date|after:now',
             'ends_at' => 'required|date|after:starts_at',
-            'total_price' => 'required|numeric|min:0',
+            // For mode "space" the price is calculated here, so it is only required for the other modes.
+            'total_price' => 'required_unless:mode,space|nullable|numeric|min:0',
+            // Optional add-ons: ids of the studio's services that have kind "addon" or "both".
+            'addons' => 'nullable|array|max:20',
+            'addons.*' => 'integer|distinct',
         ];
 
         if ($role !== 'customer') {
@@ -106,25 +114,89 @@ class BookingController extends Controller
             ? auth()->id()
             : $validated['customer_id'];
 
-           $booking = Booking::create([
-            'reference' => 'SPC-' . strtoupper(Str::random(8)),
-            'customer_id' => $customerId,
-            'studio_id' => $studio->id,
-            'mode' => $validated['mode'],
-            'starts_at' => $validated['starts_at'],
-            'ends_at' => $validated['ends_at'],
-            'total_price' => $validated['total_price'],
-            'currency' => 'JOD',
-            'status' => 'pending_payment',
-        ]);
+        $startsAt = Carbon::parse($validated['starts_at']);
+        $endsAt = Carbon::parse($validated['ends_at']);
+        $hours = round($startsAt->diffInMinutes($endsAt) / 60, 2);
 
-                
-        if ($role === 'customer') {
-            return redirect()->route('bookings.success', $booking->id);
+        /* ---------- Lines of the booking (prices always come from the database) ---------- */
+        $lines = [];
+
+        if ($validated['mode'] === 'space') {
+            $lines[] = [
+                'item_type' => 'space',
+                'service_id' => null,
+                'item_name' => $studio->name,
+                'pricing_type' => 'hourly',
+                'unit_price' => $studio->hourly_price,
+                'line_total' => round($studio->hourly_price * $hours, 3),
+            ];
         }
+
+        $addonIds = $validated['addons'] ?? [];
+
+        if ($addonIds) {
+            $addons = Service::whereIn('id', $addonIds)
+                ->where('studio_id', $studio->id)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->whereIn('kind', ['addon', 'both'])
+                ->get();
+
+            if ($addons->count() !== count($addonIds)) {
+                throw ValidationException::withMessages([
+                    'addons' => 'One or more add-ons are not available for this studio.',
+                ]);
+            }
+
+            foreach ($addons as $addon) {
+                $lines[] = [
+                    'item_type' => 'addon',
+                    'service_id' => $addon->id,
+                    'item_name' => $addon->title,
+                    'pricing_type' => $addon->pricing_type,
+                    'unit_price' => $addon->price,
+                    'line_total' => $addon->pricing_type === 'hourly'
+                        ? round($addon->price * $hours, 3)
+                        : (float) $addon->price,
+                ];
+            }
+        }
+
+        // Space bookings: sum of the lines. Other modes: the submitted base price plus the add-ons.
+        $total = $validated['mode'] === 'space'
+            ? collect($lines)->sum('line_total')
+            : (float) $validated['total_price'] + collect($lines)->sum('line_total');
+
+        DB::transaction(function () use ($customerId, $studio, $validated, $total, $lines) {
+            $booking = Booking::create([
+                'reference' => $this->newReference(),
+                'customer_id' => $customerId,
+                'studio_id' => $studio->id,
+                'mode' => $validated['mode'],
+                'starts_at' => $validated['starts_at'],
+                'ends_at' => $validated['ends_at'],
+                'total_price' => $total,
+                'currency' => 'JOD',
+                'status' => 'pending_payment',
+            ]);
+
+            foreach ($lines as $line) {
+                $booking->items()->create($line + ['is_included' => false]);
+            }
+        });
 
         return redirect()->route('bookings.index')
             ->with('success', 'Booking created successfully!');
+    }
+
+    /** Short readable reference, e.g. BK-7K3M9QXA (the column holds 30 characters, a UUID needs 36). */
+    private function newReference(): string
+    {
+        do {
+            $reference = 'BK-' . strtoupper(Str::random(8));
+        } while (Booking::withTrashed()->where('reference', $reference)->exists());
+
+        return $reference;
     }
 
     public function show(Booking $booking)
