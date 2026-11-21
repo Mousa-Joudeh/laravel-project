@@ -167,7 +167,7 @@ class BookingController extends Controller
             ? collect($lines)->sum('line_total')
             : (float) $validated['total_price'] + collect($lines)->sum('line_total');
 
-        DB::transaction(function () use ($customerId, $studio, $validated, $total, $lines) {
+            $booking = DB::transaction(function () use ($customerId, $studio, $validated, $total, $lines) {
             $booking = Booking::create([
                 'reference' => $this->newReference(),
                 'customer_id' => $customerId,
@@ -183,7 +183,11 @@ class BookingController extends Controller
             foreach ($lines as $line) {
                 $booking->items()->create($line + ['is_included' => false]);
             }
+             return $booking;
         });
+        if ($role === 'customer') {
+            return redirect()->route('bookings.success', $booking->id);
+        }
 
         return redirect()->route('bookings.index')
             ->with('success', 'Booking created successfully!');
