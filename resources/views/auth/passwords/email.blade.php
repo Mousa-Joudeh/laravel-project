@@ -1,47 +1,52 @@
-@extends('layouts.app')
+@extends('layouts.user')
+
+@section('title', 'Forgot password')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+@endpush
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Reset Password') }}</div>
-
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    <form method="POST" action="{{ route('password.email') }}">
-                        @csrf
-
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Send Password Reset Link') }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    <div class="auth-page">
+        <div class="auth-photo" aria-hidden="true">
+            <div class="auth-photo-copy">
+                <p class="auth-photo-title">Make room for your <span class="serif">next shoot.</span></p>
+                <p>Book creative spaces and manage your sessions in one place.</p>
             </div>
         </div>
+
+        <section class="auth-panel" aria-labelledby="forgot-password-title">
+            <div class="auth-panel-content">
+                <h1 id="forgot-password-title">Forgot password?</h1>
+                <p class="auth-intro">Enter your email and we’ll send you a link to reset your password.</p>
+
+                @if (session('status'))
+                    <p class="auth-intro" role="status">{{ session('status') }}</p>
+                @endif
+
+                <form class="auth-form" method="POST" action="{{ route('password.email') }}">
+                    @csrf
+
+                    <div class="auth-field">
+                        <label for="email">Email</label>
+                        <input id="email" type="email" name="email" value="{{ old('email') }}"
+                               autocomplete="email" required autofocus
+                               @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+
+                        @error('email')
+                            <p id="email-error" class="auth-error" role="alert">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">
+                        Send reset link
+                    </button>
+
+                    <a href="{{ route('login') }}" class="btn btn-light btn-lg btn-block">
+                        Back to log in
+                    </a>
+                </form>
+            </div>
+        </section>
     </div>
-</div>
 @endsection
