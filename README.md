@@ -377,6 +377,6 @@ Local testing does not establish production readiness or successful live payment
 
 ## Design documentation
 
-- [Database ERD](documentation/space.png)
+- [Database ERD](documentation/SPACES-ERD.png)
 - [Wireframes](documentation/SPACES-Wireframes.pdf)
 - [Reference mockups](documentation/SPACES-Mockups.pdf)
