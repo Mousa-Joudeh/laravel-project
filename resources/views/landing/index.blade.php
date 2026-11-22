@@ -33,7 +33,7 @@
                 </span>
 
                 <h1 class="hero-title reveal">
-                    Find the <span class="serif">space</span>.<br>
+                   Find the <span class="serif accent">space</span>.<br>
                     Frame the <span class="serif accent">story</span>.
                 </h1>
 
