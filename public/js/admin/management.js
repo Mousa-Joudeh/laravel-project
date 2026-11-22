@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (focusReview && pending) $('mgmt-partner-note').focus();
     }
 
-    document.querySelectorAll('[data-partner-review]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll('[data-partner-review]').forEach(button => button.addEventListener('click', async () => {
         const form = $('mgmt-partner-review-form');
         const status = button.dataset.partnerReview;
         if (status === 'rejected' && !$('mgmt-partner-note').value.trim()) {
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         $('mgmt-partner-new-status').value = status;
-        if (!confirm(`${status === 'approved' ? 'Approve' : 'Reject'} this partner request?`)) return;
+        if (!(await window.SpaceAdminPopup.confirm(`${status === 'approved' ? 'Approve' : 'Reject'} this partner request?`))) return;
         request(form.action, new FormData(form), $('mgmt-partner-dialog'), button);
     }));
 

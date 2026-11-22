@@ -4,15 +4,14 @@
 
 @push('styles')
     <link href="{{ asset('css/booking-success.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/booking-success-reference.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
     <div class="container">
         <div class="success-wrap">
-
-            
             <div class="shutter">
-                <svg viewBox="0 0 104 104" fill="none">
+                <svg viewBox="0 0 104 104" fill="none" aria-hidden="true">
                     <circle cx="52" cy="52" r="50" fill="#fff1ea"/>
                     <g class="blades">
                         <circle cx="52" cy="52" r="36" fill="#ff5b1a"/>
@@ -26,14 +25,38 @@
             <h1>You're <span class="serif">in the frame</span>, {{ explode(' ', Auth::user()->name)[0] }}!</h1>
             <p class="muted">Your booking was sent to {{ $booking->studio->name }}. Show your reference when you arrive.</p>
 
-            {{-- the ticket --}}
             <div class="ticket">
                 <div class="ticket-top">
-                    <img src="{{ $coverUrl }}" alt="" class="ticket-img">
-                    <div>
-                        <span class="ticket-ref">{{ $booking->reference }}</span>
-                        <h3>{{ $booking->studio->name }}</h3>
-                        <p class="muted">{{ ucfirst($booking->mode) }} booking · {{ $booking->studio->city }}</p>
+                    <div class="ticket-booking">
+                        <img src="{{ $coverUrl }}" alt="{{ $booking->studio->name }}" class="ticket-img">
+                        <div class="ticket-booking-details">
+                            <span class="ticket-ref">{{ $booking->reference }}</span>
+                            <h3>{{ $booking->studio->name }}</h3>
+                            <p class="muted">{{ ucfirst($booking->mode) }} booking · {{ $booking->studio->city }}</p>
+                        </div>
+                    </div>
+
+                    <div class="ticket-calendar-area">
+                        <div class="ticket-calendar-hint">
+                            <span class="ticket-calendar-icon" aria-hidden="true">
+                                <i class="bi bi-calendar-event"></i>
+                            </span>
+                            <span class="ticket-calendar-label">Scan to add<br>to your calendar</span>
+                        </div>
+
+                        <a class="ticket-qr-link" href="{{ $calendarUrl }}" target="_blank" rel="noopener noreferrer"
+                           aria-label="Open Google Calendar with the booking date and time filled in">
+                            <span class="ticket-qr-frame">
+                                <span class="ticket-qr-corner top-left" aria-hidden="true"></span>
+                                <span class="ticket-qr-corner top-right" aria-hidden="true"></span>
+                                <span class="ticket-qr-corner bottom-left" aria-hidden="true"></span>
+                                <span class="ticket-qr-corner bottom-right" aria-hidden="true"></span>
+                                <span class="ticket-qr-code" id="booking-calendar-qr"
+                                      data-calendar-url="{{ $calendarUrl }}"></span>
+                                <span class="ticket-qr-brand" aria-hidden="true"><i class="bi bi-camera-fill"></i></span>
+                                <span class="ticket-qr-fallback">Open calendar</span>
+                            </span>
+                        </a>
                     </div>
                 </div>
 
@@ -53,3 +76,9 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    {{-- QR is generated locally; clicking it opens Google Calendar too. --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="{{ asset('js/booking-success.js') }}"></script>
+@endpush
