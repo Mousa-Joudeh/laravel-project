@@ -18,7 +18,7 @@
 <div class="fav-wrap">
     @guest
         
-        <a href="{{ route('login') }}" class="fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></a>
+        <a href="{{ \Illuminate\Support\Facades\URL::signedRoute('favorites.continue', [ 'return_to' => request()->fullUrl(), ]) }}" class="fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></a>
     @endguest
 
     @auth

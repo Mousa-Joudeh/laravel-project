@@ -167,7 +167,7 @@
                     </div>
 
                     @guest
-                        <a href="{{ route('login') }}" class="btn btn-primary btn-lg btn-block"><i class="bi bi-calendar2-plus"></i> Book now</a>
+                        <a href="{{ route('packages.booking.continue', ['package' => $package->id]) }}" class="btn btn-primary btn-lg btn-block"><i class="bi bi-calendar2-plus"></i> Book now</a>
                         <p class="note">You will log in first.</p>
                     @else
                         @if (Auth::user()->role === 'customer')

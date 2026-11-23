@@ -347,7 +347,7 @@
                         <p>Add this service when booking a space or package.</p>
                     @elseif ($canBookService)
                         @guest
-                            <a href="{{ route('login') }}" class="btn btn-primary btn-lg btn-block">
+                            <a href="{{ route('services.booking.continue', ['service' => $service->id]) }}" class="btn btn-primary btn-lg btn-block">
                                 <i class="bi bi-calendar2-plus" aria-hidden="true"></i>
                                 Book now
                             </a>

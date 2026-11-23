@@ -225,7 +225,7 @@
                         <div><span>Total for 1 hour</span><b id="card-total">JD {{ number_format($studio->hourly_price, 0) }}</b></div>
                     </div>
                     @guest
-                        <a href="{{ route('login') }}" class="btn btn-primary btn-lg btn-block"><i class="bi bi-calendar2-plus"></i> Book now</a>
+                        <a href="{{ route('studios.booking.continue', ['studio' => $studio->id]) }}" class="btn btn-primary btn-lg btn-block"><i class="bi bi-calendar2-plus"></i> Book now</a>
                         <p class="note">You will log in first.</p>
                     @else
                         @if (Auth::user()->role === 'customer')
